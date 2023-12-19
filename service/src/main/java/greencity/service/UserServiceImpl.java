@@ -181,6 +181,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageableAdvancedDto<UserManagementVO> search(Pageable pageable,
         UserManagementViewDto userManagementViewDto) {
+
+        if(userManagementViewDto.getRole() == null || !userManagementViewDto.getRole().isEmpty()) {
+            userManagementViewDto.setRole("");
+        }
+
         Page<User> found = userRepo.findAll(buildSpecification(userManagementViewDto), pageable);
         return buildPageableAdvanceDtoFromPage(found);
     }
