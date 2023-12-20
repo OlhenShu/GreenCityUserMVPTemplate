@@ -34,6 +34,7 @@ class EmailControllerTest {
     @Mock
     private EmailService emailService;
 
+
     @InjectMocks
     private EmailController emailController;
 
@@ -113,7 +114,7 @@ class EmailControllerTest {
     @Test
     void sendHabitNotification() throws Exception {
         String content = "{" +
-            "\"email\":\"string\"," +
+            "\"email\":\"string@gmail.com\"," +
             "\"name\":\"string\"" +
             "}";
 
