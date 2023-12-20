@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.nio.file.AccessDeniedException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -47,6 +48,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      *         exception.
      * @author Yurii Savchenko
      */
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public final ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex, WebRequest request){
+        log.info(ex.getMessage());
+        ExceptionResponse exceptionResponse = new ExceptionResponse(getErrorAttributes(request));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(exceptionResponse);
+    }
+
     @ExceptionHandler(ConstraintViolationException.class)
     public final ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex,
         WebRequest request) {
