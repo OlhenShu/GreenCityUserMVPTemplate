@@ -126,7 +126,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/user/findUuidByEmail",
                         "/user/lang",
                         "/user/createUbsRecord",
-                        "/ownSecurity/password-status")
+                        "/ownSecurity/password-status",
+                        "/user/emailNotifications")
                 .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
                 .antMatchers(HttpMethod.POST,
                         USER_LINK,
@@ -161,7 +162,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         "/user/shopping-list-items")
                 .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
                 .antMatchers(HttpMethod.GET,
-                        "/user/emailNotifications",
                         "/user/all",
                         "/user/roles",
                         "/user/findUserForManagement",
