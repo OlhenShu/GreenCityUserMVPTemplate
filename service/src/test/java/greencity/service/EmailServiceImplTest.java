@@ -1,6 +1,7 @@
 package greencity.service;
 
 import greencity.ModelUtils;
+import static greencity.ModelUtils.getUser;
 import greencity.dto.category.CategoryDto;
 import greencity.dto.econews.AddEcoNewsDtoResponse;
 import greencity.dto.econews.EcoNewsForSendEmailDto;
@@ -82,11 +83,21 @@ class EmailServiceImplTest {
     }
 
     @Test
+    void sendCreatedNewsForAuthorByNotExistingEmailThrowsNotFoundExceptionTest() {
+        EcoNewsForSendEmailDto dto = new EcoNewsForSendEmailDto();
+        PlaceAuthorDto placeAuthorDto = new PlaceAuthorDto();
+        placeAuthorDto.setEmail("test@gmail.com");
+        dto.setAuthor(placeAuthorDto);
+        assertThrows(NotFoundException.class,() -> service.sendCreatedNewsForAuthor(dto));
+    }
+
+    @Test
     void sendCreatedNewsForAuthorTest() {
         EcoNewsForSendEmailDto dto = new EcoNewsForSendEmailDto();
         PlaceAuthorDto placeAuthorDto = new PlaceAuthorDto();
         placeAuthorDto.setEmail("test@gmail.com");
         dto.setAuthor(placeAuthorDto);
+        when(userRepo.findByEmail("test@gmail.com")).thenReturn(Optional.ofNullable(getUser()));
         service.sendCreatedNewsForAuthor(dto);
         verify(javaMailSender).createMimeMessage();
     }
