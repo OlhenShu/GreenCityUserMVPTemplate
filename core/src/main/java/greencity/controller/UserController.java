@@ -50,6 +50,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -397,15 +398,16 @@ public class UserController {
      */
     @ApiOperation(value = "Get user profile statistics by id")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = HttpStatuses.OK),
-        @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
-        @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @GetMapping("/{userId}/profileStatistics/")
     public ResponseEntity<UserProfileStatisticsDto> getUserProfileStatistics(
-        @ApiParam("Id of current user. Cannot be empty.") @PathVariable @CurrentUserId Long userId) {
+            @ApiParam("Id of current user. Cannot be empty.") @PathVariable @CurrentUserId Long userId) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(userService.getUserProfileStatistics(userId));
+                .body(userService.getUserProfileStatistics(userId));
     }
 
     /**
@@ -583,14 +585,15 @@ public class UserController {
      */
     @ApiOperation(value = "Deactivate user indicating the list of reasons for deactivation")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = HttpStatuses.OK),
-        @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
-        @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-        @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @PutMapping("/deactivate")
     public ResponseEntity<ResponseEntity.BodyBuilder> deactivateUser(@RequestParam Long id,
-        @RequestBody List<String> userReasons) {
+                                                                     @RequestBody List<String> userReasons) {
         UserDeactivationReasonDto userDeactivationDto = userService.deactivateUser(id, userReasons);
         emailService.sendReasonOfDeactivation(userDeactivationDto);
         return ResponseEntity.status(HttpStatus.OK).build();

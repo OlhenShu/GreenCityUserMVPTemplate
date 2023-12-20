@@ -25,11 +25,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static greencity.constant.AppConstant.ADMIN;
-import static greencity.constant.AppConstant.EMPLOYEE;
-import static greencity.constant.AppConstant.MODERATOR;
-import static greencity.constant.AppConstant.UBS_EMPLOYEE;
-import static greencity.constant.AppConstant.USER;
+import static greencity.constant.AppConstant.*;
 import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 
