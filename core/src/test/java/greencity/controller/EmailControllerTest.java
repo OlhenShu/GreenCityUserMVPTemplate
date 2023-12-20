@@ -94,7 +94,7 @@ class EmailControllerTest {
     @Test
     void changePlaceStatus() throws Exception {
         String content = "{" +
-            "\"authorEmail\":\"string\"," +
+            "\"authorEmail\":\"string@gmail.com\"," +
             "\"authorFirstName\":\"string\"," +
             "\"placeName\":\"string\"," +
             "\"placeStatus\":\"string\"" +
