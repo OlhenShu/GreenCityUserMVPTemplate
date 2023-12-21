@@ -10,23 +10,7 @@ import greencity.dto.PageableDto;
 import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
 import greencity.dto.ubs.UbsTableCreationDto;
-import greencity.dto.user.RoleDto;
-import greencity.dto.user.UserActivationDto;
-import greencity.dto.user.UserAndAllFriendsWithOnlineStatusDto;
-import greencity.dto.user.UserAndFriendsWithOnlineStatusDto;
-import greencity.dto.user.UserDeactivationReasonDto;
-import greencity.dto.user.UserForListDto;
-import greencity.dto.user.UserManagementDto;
-import greencity.dto.user.UserManagementUpdateDto;
-import greencity.dto.user.UserManagementVO;
-import greencity.dto.user.UserManagementViewDto;
-import greencity.dto.user.UserProfileDtoRequest;
-import greencity.dto.user.UserProfileDtoResponse;
-import greencity.dto.user.UserProfileStatisticsDto;
-import greencity.dto.user.UserRoleDto;
-import greencity.dto.user.UserStatusDto;
-import greencity.dto.user.UserUpdateDto;
-import greencity.dto.user.UserVO;
+import greencity.dto.user.*;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -36,25 +20,24 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-import java.security.Principal;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -490,7 +473,10 @@ public class UserController {
      * @author Orest Mamchuk
      */
     @ApiOperation(value = "update via UserManagement")
-    @ApiResponses(value = @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED))
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+    })
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void updateUserManagement(
