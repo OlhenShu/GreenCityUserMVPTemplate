@@ -104,7 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/ownSecurity/signUp",
                 "/ownSecurity/signIn",
                 "/ownSecurity/updatePassword",
-                "/email/addEcoNews",
+//                "/email/addEcoNews",
                 "/email/sendReport",
                 "/email/changePlaceStatus",
                 "/email/sendHabitNotification")
