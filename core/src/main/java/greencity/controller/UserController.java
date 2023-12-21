@@ -10,7 +10,21 @@ import greencity.dto.PageableDto;
 import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
 import greencity.dto.ubs.UbsTableCreationDto;
-import greencity.dto.user.*;
+import greencity.dto.user.RoleDto;
+import greencity.dto.user.UserActivationDto;
+import greencity.dto.user.UserDeactivationReasonDto;
+import greencity.dto.user.UserForListDto;
+import greencity.dto.user.UserManagementDto;
+import greencity.dto.user.UserManagementUpdateDto;
+import greencity.dto.user.UserManagementVO;
+import greencity.dto.user.UserManagementViewDto;
+import greencity.dto.user.UserProfileDtoRequest;
+import greencity.dto.user.UserProfileDtoResponse;
+import greencity.dto.user.UserProfileStatisticsDto;
+import greencity.dto.user.UserRoleDto;
+import greencity.dto.user.UserStatusDto;
+import greencity.dto.user.UserUpdateDto;
+import greencity.dto.user.UserVO;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -38,6 +52,7 @@ import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+
 @RestController
 @RequestMapping("/user")
 @AllArgsConstructor
