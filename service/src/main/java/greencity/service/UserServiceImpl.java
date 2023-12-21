@@ -682,9 +682,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserLanguage(Long userId, Long languageId) {
         Language language = languageRepo.findById(languageId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.LANGUAGE_NOT_FOUND_BY_ID + languageId));
+            .orElseThrow(() -> new BadRequestException(ErrorMessage.LANGUAGE_NOT_FOUND_BY_ID + languageId));
         User user = userRepo.findById(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + userId));
+            .orElseThrow(() -> new BadRequestException(ErrorMessage.USER_NOT_FOUND_BY_ID + userId));
         user.setLanguage(language);
         userRepo.save(user);
     }
