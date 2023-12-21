@@ -426,6 +426,23 @@ public class UserController {
     }
 
     /**
+     * Get {@link UserVO} by id.
+     *
+     * @return {@link UserUpdateDto}.
+     * @author Orest Mamchuk
+     */
+    @ApiOperation(value = "Get User by id")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = HttpStatuses.OK),
+        @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
+    @GetMapping("/findById")
+    public ResponseEntity<UserVO> findById(@RequestParam Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+    }
+
+    /**
      * Method that allow you to find {@link UserVO} for management.
      *
      * @return {@link UserUpdateDto}.
