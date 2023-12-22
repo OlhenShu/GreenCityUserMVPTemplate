@@ -356,7 +356,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
      *         exception.
      */
     @ExceptionHandler(PropertyReferenceException.class)
-    public final ResponseEntity<Object> handleBadRequestWhenNotExistingPropertyIsReferenced(PropertyReferenceException ex,WebRequest request) {
+    public final ResponseEntity<Object> handleBadRequestWhenNotExistingPropertyIsReferenced(
+        PropertyReferenceException ex, WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(getErrorAttributes(request));
         log.trace(ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
