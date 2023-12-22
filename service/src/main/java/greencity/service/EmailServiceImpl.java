@@ -72,17 +72,21 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendChangePlaceStatusEmail(String authorName, String placeName,
-        String placeStatus, String authorEmail) {
-        log.info(LogMessage.IN_SEND_CHANGE_PLACE_STATUS_EMAIL, placeName);
-        Map<String, Object> model = new HashMap<>();
-        model.put(EmailConstants.CLIENT_LINK, clientLink);
-        model.put(EmailConstants.USER_NAME, authorName);
-        model.put(EmailConstants.PLACE_NAME, placeName);
-        model.put(EmailConstants.STATUS, placeStatus);
+    public void sendChangePlaceStatusEmail(String receiverName, String placeName,
+        String placeStatus, String receiverEmail) {
+        if (userRepo.findByEmail(receiverEmail).isPresent()) {
+            log.info(LogMessage.IN_SEND_CHANGE_PLACE_STATUS_EMAIL, placeName);
+            Map<String, Object> model = new HashMap<>();
+            model.put(EmailConstants.CLIENT_LINK, clientLink);
+            model.put(EmailConstants.USER_NAME, receiverName);
+            model.put(EmailConstants.PLACE_NAME, placeName);
+            model.put(EmailConstants.STATUS, placeStatus);
 
-        String template = createEmailTemplate(model, EmailConstants.CHANGE_PLACE_STATUS_EMAIL_PAGE);
-        sendEmail(authorEmail, EmailConstants.GC_CONTRIBUTORS, template);
+            String template = createEmailTemplate(model, EmailConstants.CHANGE_PLACE_STATUS_EMAIL_PAGE);
+            sendEmail(receiverEmail, EmailConstants.GC_CONTRIBUTORS, template);
+        } else {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + receiverEmail);
+        }
     }
 
     @Override
