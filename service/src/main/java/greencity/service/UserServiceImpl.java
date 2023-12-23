@@ -604,18 +604,16 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileStatisticsDto getUserProfileStatistics(Long userId) {
-
-        userRepo.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
-
+        userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException(String.format("User with id: %d not found", userId)));
         Long amountOfPublishedNewsByUserId = restClient.findAmountOfPublishedNews(userId);
         Long amountOfAcquiredHabitsByUserId = restClient.findAmountOfAcquiredHabits(userId);
         Long amountOfHabitsInProgressByUserId = restClient.findAmountOfHabitsInProgress(userId);
-
         return UserProfileStatisticsDto.builder()
-            .amountPublishedNews(amountOfPublishedNewsByUserId)
-            .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
-            .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
-            .build();
+                .amountPublishedNews(amountOfPublishedNewsByUserId)
+                .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
+                .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
+                .build();
     }
 
     @Override
