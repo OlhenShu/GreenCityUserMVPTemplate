@@ -14,6 +14,7 @@ import greencity.dto.user.UserActivationDto;
 import greencity.dto.user.UserDeactivationReasonDto;
 import greencity.dto.violation.UserViolationMailDto;
 import greencity.exception.exceptions.NotFoundException;
+import greencity.exception.exceptions.WrongEmailException;
 import greencity.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
-
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
@@ -242,6 +242,13 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendHabitNotification(String name, String email) {
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
+            throw new WrongEmailException("Wrong email format");
+        }
+        if (!userRepo.existsUserByEmail(email)) {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);
+        }
+
         String subject = "Notification about not marked habits";
         String content = "Dear " + name + ", you haven't marked any habit during last 3 days";
         sendEmail(email, subject, content);

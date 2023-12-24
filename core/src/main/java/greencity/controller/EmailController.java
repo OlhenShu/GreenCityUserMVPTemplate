@@ -70,6 +70,14 @@ public class EmailController {
      *                              email
      * @author Taras Kavkalo
      */
+    @ApiOperation(value = "Send habit notification")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND),
+            @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
+
     @PostMapping("/sendHabitNotification")
     public ResponseEntity<Object> sendHabitNotification(@RequestBody SendHabitNotification sendHabitNotification) {
         emailService.sendHabitNotification(sendHabitNotification.getName(), sendHabitNotification.getEmail());

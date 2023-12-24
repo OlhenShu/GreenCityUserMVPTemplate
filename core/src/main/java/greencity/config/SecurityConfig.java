@@ -106,8 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/ownSecurity/updatePassword",
                 "/email/addEcoNews",
                 "/email/sendReport",
-                "/email/changePlaceStatus",
-                "/email/sendHabitNotification")
+                "/email/changePlaceStatus")
             .permitAll()
             .antMatchers(HttpMethod.GET,
                 USER_LINK,
@@ -133,7 +132,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 USER_LINK,
                 "/user/shopping-list-items",
                 "/user/{userId}/habit",
-                "/ownSecurity/set-password")
+                "/ownSecurity/set-password",
+                    "/email/sendHabitNotification")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.PUT,
                 "/ownSecurity/changePassword",
