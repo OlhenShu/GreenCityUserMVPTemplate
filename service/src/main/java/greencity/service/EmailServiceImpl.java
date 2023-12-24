@@ -270,6 +270,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendUserViolationEmail(UserViolationMailDto dto) {
+        if(!dto.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
+            throw new NotFoundException("Wrong email format");
+        }
         Map<String, Object> model = new HashMap<>();
         model.put(EmailConstants.CLIENT_LINK, clientLink);
         model.put(EmailConstants.USER_NAME, dto.getName());

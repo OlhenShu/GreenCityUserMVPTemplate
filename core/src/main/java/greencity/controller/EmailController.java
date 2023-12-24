@@ -83,6 +83,11 @@ public class EmailController {
      *            sending email.
      * @author Zakhar Veremchuk
      */
+    @ApiOperation(value = "Send notification about violation")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND),
+    })
     @PostMapping("/sendUserViolation")
     public ResponseEntity<Object> sendUserViolation(@RequestBody UserViolationMailDto dto) {
         emailService.sendUserViolationEmail(dto);
