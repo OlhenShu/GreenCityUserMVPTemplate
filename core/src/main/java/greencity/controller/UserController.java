@@ -162,21 +162,31 @@ public class UserController {
     }
 
     /**
-     * The method which return array of existing {@link EmailNotification}.
+     * The method which returns an array of existing {@link EmailNotification}.
      *
      * @return {@link EmailNotification} array
      * @author Nazar Vladyka
      */
     @ApiOperation(value = "Get all available email notifications statuses")
     @ApiResponses(value = {
-        @ApiResponse(code = 200, message = HttpStatuses.OK, response = EmailNotification[].class),
-        @ApiResponse(code = 303, message = HttpStatuses.SEE_OTHER),
-        @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST)
+            @ApiResponse(code = 200, message = "OK", response = EmailNotification[].class),
+            @ApiResponse(code = 303, message = "SEE_OTHER"),
+            @ApiResponse(code = 400, message = "BAD_REQUEST")
     })
     @GetMapping("emailNotifications")
-    public ResponseEntity<List<EmailNotification>> getEmailNotifications() {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.getEmailNotificationsStatuses());
+    public ResponseEntity<?> getEmailNotifications() {
+
+        List<EmailNotification> notifications = userService.getEmailNotificationsStatuses();
+
+        if ((notifications.size() < 5) && (notifications.size() > 0)) {
+            return ResponseEntity.status(HttpStatus.SEE_OTHER).body("SEE_OTHER");
+        }else if (notifications.size() == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("BAD_REQUEST");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body("OK");
     }
+
 
     /**
      * The method which return list of users by filter. Parameter pageable ignored
