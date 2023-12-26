@@ -242,13 +242,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendHabitNotification(String name, String email) {
-        if (!email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
-            throw new WrongEmailException("Wrong email format");
-        }
         if (!userRepo.existsUserByEmail(email)) {
             throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);
         }
-
         String subject = "Notification about not marked habits";
         String content = "Dear " + name + ", you haven't marked any habit during last 3 days";
         sendEmail(email, subject, content);

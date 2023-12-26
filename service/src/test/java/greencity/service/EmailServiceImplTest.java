@@ -43,6 +43,8 @@ class EmailServiceImplTest {
     @Mock
     private UserRepo userRepo;
 
+    private final String existingEmail = "service@greencity.ua";
+
     @BeforeEach
     public void setup() {
         initMocks(this);
@@ -138,7 +140,8 @@ class EmailServiceImplTest {
 
     @Test
     void sendHabitNotification() {
-        service.sendHabitNotification("userName", "userEmail");
+        when(userRepo.existsUserByEmail(existingEmail)).thenReturn(true);
+        service.sendHabitNotification("userName", existingEmail);
         verify(javaMailSender).createMimeMessage();
     }
 
