@@ -14,7 +14,6 @@ import greencity.dto.user.UserActivationDto;
 import greencity.dto.user.UserDeactivationReasonDto;
 import greencity.dto.violation.UserViolationMailDto;
 import greencity.exception.exceptions.NotFoundException;
-import greencity.exception.exceptions.WrongEmailException;
 import greencity.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
