@@ -2,7 +2,9 @@ package greencity.config;
 
 import greencity.security.filters.AccessTokenAuthenticationFilter;
 import greencity.security.jwt.JwtTool;
+import greencity.security.providers.CustomOAuth2AuthenticationSuccessHandler;
 import greencity.security.providers.JwtAuthenticationProvider;
+import greencity.security.service.OAuthService;
 import greencity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -44,6 +47,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTool jwtTool;
     private final UserService userService;
+    private final OAuthService oAuthService;
     private static final String USER_LINK = "/user";
 
     /**
@@ -51,9 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
 
     @Autowired
-    public SecurityConfig(JwtTool jwtTool, UserService userService) {
+    public SecurityConfig(JwtTool jwtTool, UserService userService,OAuthService oAuthService) {
         this.jwtTool = jwtTool;
         this.userService = userService;
+        this.oAuthService = oAuthService;
     }
 
     /**
@@ -98,7 +103,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/token",
                 "/socket/**",
                 "/user/findAllByEmailNotification",
-                "/user/checkByUuid")
+                "/user/checkByUuid",
+                "/login/**",
+                "/oauth2/**")
             .permitAll()
             .antMatchers(HttpMethod.POST,
                 "/ownSecurity/signUp",
@@ -189,7 +196,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/css/**",
                 "/img/**")
             .permitAll()
-            .anyRequest().hasAnyRole(ADMIN);
+            .anyRequest().hasAnyRole(ADMIN)
+            .and()
+            .oauth2Login()
+            .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oAuthService))
+            .failureHandler(new SimpleUrlAuthenticationFailureHandler("/login?error=true"));
     }
 
     /**
