@@ -19,7 +19,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -33,8 +32,7 @@ import static greencity.constant.AppConstant.EMPLOYEE;
 import static greencity.constant.AppConstant.MODERATOR;
 import static greencity.constant.AppConstant.UBS_EMPLOYEE;
 import static greencity.constant.AppConstant.USER;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * Config for security.
@@ -200,7 +198,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .oauth2Login()
             .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oAuthService))
-            .failureHandler(new SimpleUrlAuthenticationFailureHandler("/login?error=true"));
+            .failureHandler((req, resp, exc) -> resp.sendError(SC_BAD_REQUEST, exc.getMessage()));
     }
 
     /**
