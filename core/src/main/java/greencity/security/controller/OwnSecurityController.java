@@ -199,7 +199,7 @@ public class OwnSecurityController {
      * @return - {@link ResponseEntity}
      * @author Dmytro Dovhal
      */
-    @ApiOperation("Updating current password.")
+    @ApiOperation("Change current password.")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = HttpStatuses.OK),
         @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -207,7 +207,7 @@ public class OwnSecurityController {
     })
     @PutMapping("/changePassword")
     public ResponseEntity<Object> updatePassword(@Valid @RequestBody UpdatePasswordDto updateDto,
-        @ApiIgnore @AuthenticationPrincipal Principal principal) {
+                                                 @ApiIgnore @AuthenticationPrincipal Principal principal) {
         String email = principal.getName();
         service.updateCurrentPassword(updateDto, email);
         return ResponseEntity.ok().build();

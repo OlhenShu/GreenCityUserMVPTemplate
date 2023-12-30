@@ -1,21 +1,7 @@
 package greencity.security.service;
 
-import greencity.TestConst;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.refEq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-
 import greencity.ModelUtils;
+import greencity.TestConst;
 import greencity.constant.ErrorMessage;
 import greencity.dto.ownsecurity.OwnSecurityVO;
 import greencity.dto.user.UserAdminRegistrationDto;
@@ -27,18 +13,8 @@ import greencity.entity.User;
 import greencity.entity.VerifyEmail;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
-import greencity.exception.exceptions.BadRefreshTokenException;
-import greencity.exception.exceptions.BadUserStatusException;
-import greencity.exception.exceptions.EmailNotVerified;
-import greencity.exception.exceptions.PasswordsDoNotMatchesException;
-import greencity.exception.exceptions.UserAlreadyHasPasswordException;
-import greencity.exception.exceptions.UserAlreadyRegisteredException;
-import greencity.exception.exceptions.UserBlockedException;
-import greencity.exception.exceptions.UserDeactivatedException;
-import greencity.exception.exceptions.WrongEmailException;
-import greencity.exception.exceptions.WrongPasswordException;
+import greencity.exception.exceptions.*;
 import greencity.repository.UserRepo;
-import greencity.security.dto.ownsecurity.EmployeeSignUpDto;
 import greencity.security.dto.ownsecurity.OwnSignInDto;
 import greencity.security.dto.ownsecurity.OwnSignUpDto;
 import greencity.security.dto.ownsecurity.SetPasswordDto;
@@ -49,10 +25,6 @@ import greencity.security.repository.RestorePasswordEmailRepo;
 import greencity.service.EmailService;
 import greencity.service.UserService;
 import io.jsonwebtoken.ExpiredJwtException;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,6 +35,14 @@ import org.mockito.quality.Strictness;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -127,9 +107,10 @@ class OwnSecurityServiceImplTest {
             .role(Role.ROLE_USER)
             .build();
         updatePasswordDto = UpdatePasswordDto.builder()
-            .password("newPassword")
-            .confirmPassword("newPassword")
-            .build();
+                .newPassword("newPassword")
+                .confirmPassword("newPassword")
+                .currentPassword("password")
+                .build();
         userManagementDto = UserManagementDto.builder()
             .name(TestConst.NAME)
             .email(TestConst.EMAIL)
@@ -308,14 +289,15 @@ class OwnSecurityServiceImplTest {
     @Test
     void updateCurrentPasswordTest() {
         when(userService.findByEmail("test@gmail.com")).thenReturn(verifiedUser);
-        when(passwordEncoder.encode(updatePasswordDto.getPassword())).thenReturn(updatePasswordDto.getPassword());
+        when(passwordEncoder.matches(updatePasswordDto.getCurrentPassword(), verifiedUser.getOwnSecurity().getPassword())).thenReturn(true);
+        when(passwordEncoder.encode(anyString())).thenReturn("newPassword");
         ownSecurityService.updateCurrentPassword(updatePasswordDto, "test@gmail.com");
-        verify(ownSecurityRepo).updatePassword(updatePasswordDto.getPassword(), 1L);
+        verify(ownSecurityRepo).updatePassword(updatePasswordDto.getNewPassword(), 1L);
     }
 
     @Test
     void updateCurrentPasswordDifferentPasswordsTest() {
-        updatePasswordDto.setPassword("123");
+        updatePasswordDto.setCurrentPassword("123");
         when(userService.findByEmail("test@gmail.com")).thenReturn(verifiedUser);
         assertThrows(PasswordsDoNotMatchesException.class,
             () -> ownSecurityService.updateCurrentPassword(updatePasswordDto, "test@gmail.com"));
@@ -323,7 +305,7 @@ class OwnSecurityServiceImplTest {
 
     @Test
     void updateCurrentPasswordEmailNotVerifiedTest() {
-        updatePasswordDto.setPassword("123");
+        updatePasswordDto.setCurrentPassword("123");
 
         UserVO user = ModelUtils.getUserVO();
         user.setUserStatus(UserStatus.CREATED);

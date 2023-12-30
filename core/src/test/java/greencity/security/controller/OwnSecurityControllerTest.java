@@ -153,9 +153,10 @@ class OwnSecurityControllerTest {
         when(principal.getName()).thenReturn("test@mail.com");
 
         String content = "{\n" +
-            "  \"confirmPassword\": \"String123=\",\n" +
-            "  \"password\": \"String124=\"\n" +
-            "}";
+                         "  \"confirmPassword\": \"String123=\",\n" +
+                         "  \"currentPassword\": \"String124=\",\n" +
+                         "  \"newPassword\": \"String123=\"\n" +
+                         "}";
 
         mockMvc.perform(put(LINK + "/changePassword")
             .principal(principal)
