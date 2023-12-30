@@ -27,18 +27,23 @@ import java.util.regex.Pattern;
 
 import static greencity.constant.AppConstant.DEFAULT_RATING;
 
-
+/**
+ * {@inheritDoc}
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class OAuthServiceServiceImpl implements OAuthService {
     private final JwtTool jwtTool;
     private final UserService userService;
     private final UserRepo userRepo;
     private final ModelMapper modelMapper;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    @Transactional
     public SuccessSignInDto authenticate(Map<String, Object> attributes) {
         String email = attributes.get("email").toString();
         String userName = attributes.get("name").toString();
@@ -76,23 +81,22 @@ public class OAuthServiceServiceImpl implements OAuthService {
 
     private User createNewUser(String email, String userName, String picture) {
         return User.builder()
-                .email(email)
-                .name(userName)
-                .role(Role.ROLE_USER)
-                .uuid(UUID.randomUUID().toString())
-                .rating(DEFAULT_RATING)
-                .profilePicturePath(picture)
-                .dateOfRegistration(LocalDateTime.now())
-                .lastActivityTime(LocalDateTime.now())
-                .userStatus(UserStatus.ACTIVATED)
-                .emailNotification(EmailNotification.DISABLED)
-                .language(Language.builder()
-                        .id(modelMapper.map(Locale.ENGLISH.toString(), Long.class))
-                        .build())
-                .refreshTokenKey(jwtTool.generateTokenKey())
-                .build();
+            .email(email)
+            .name(userName)
+            .role(Role.ROLE_USER)
+            .uuid(UUID.randomUUID().toString())
+            .rating(DEFAULT_RATING)
+            .profilePicturePath(picture)
+            .dateOfRegistration(LocalDateTime.now())
+            .lastActivityTime(LocalDateTime.now())
+            .userStatus(UserStatus.ACTIVATED)
+            .emailNotification(EmailNotification.DISABLED)
+            .language(Language.builder()
+                .id(modelMapper.map(Locale.ENGLISH.toString(), Long.class))
+                .build())
+            .refreshTokenKey(jwtTool.generateTokenKey())
+            .build();
     }
-
 
 
     private SuccessSignInDto getSuccessSignInDto(UserVO user) {
@@ -100,5 +104,4 @@ public class OAuthServiceServiceImpl implements OAuthService {
         String refreshToken = jwtTool.createRefreshToken(user);
         return new SuccessSignInDto(user.getId(), accessToken, refreshToken, user.getName(), false);
     }
-
 }

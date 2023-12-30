@@ -2,7 +2,7 @@ package greencity.config;
 
 import greencity.security.filters.AccessTokenAuthenticationFilter;
 import greencity.security.jwt.JwtTool;
-import greencity.security.providers.CustomOAuth2AuthenticationSuccessHandler;
+import greencity.security.handlers.CustomOAuth2AuthenticationSuccessHandler;
 import greencity.security.providers.JwtAuthenticationProvider;
 import greencity.security.service.OAuthService;
 import greencity.service.UserService;
@@ -45,7 +45,7 @@ import static javax.servlet.http.HttpServletResponse.*;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTool jwtTool;
     private final UserService userService;
-    private final OAuthService oAuthService;
+    private final OAuthService oauthservice;
     private static final String USER_LINK = "/user";
 
     /**
@@ -53,10 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
 
     @Autowired
-    public SecurityConfig(JwtTool jwtTool, UserService userService,OAuthService oAuthService) {
+    public SecurityConfig(JwtTool jwtTool, UserService userService,OAuthService oauthservice) {
         this.jwtTool = jwtTool;
         this.userService = userService;
-        this.oAuthService = oAuthService;
+        this.oauthservice = oauthservice;
     }
 
     /**
@@ -197,7 +197,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .anyRequest().hasAnyRole(ADMIN)
             .and()
             .oauth2Login()
-            .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oAuthService))
+            .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oauthservice))
             .failureHandler((req, resp, exc) -> resp.sendError(SC_BAD_REQUEST, exc.getMessage()));
     }
 

@@ -1,4 +1,4 @@
-package greencity.security.providers;
+package greencity.security.handlers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import greencity.security.dto.SuccessSignInDto;
@@ -16,32 +16,44 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Map;
 
+/**
+ * Handles successful authentication for OAuth2 users and processes the authentication success flow.
+ * Extends the SimpleUrlAuthenticationSuccessHandler for custom handling after successful authentication.
+ *
+ * @author Nikita Malov && Dmytro Klopov
+ * @version 1.0
+ */
 @RequiredArgsConstructor
 @Component
 @Slf4j
 public class CustomOAuth2AuthenticationSuccessHandler extends
     SimpleUrlAuthenticationSuccessHandler {
+    private final OAuthService oauthservice;
 
-    private final OAuthService oAuthService;
-
+    /**
+     * Handles the actions to be performed upon successful authentication.
+     *
+     * @param request        The HTTP servlet request
+     * @param response       The HTTP servlet response
+     * @param authentication The authentication object
+     * @throws IOException if an I/O error occurs during the operation
+     */
     @Override
     public void onAuthenticationSuccess(
         HttpServletRequest request,
         HttpServletResponse response,
         Authentication authentication) throws IOException {
-
-        if(authentication instanceof OAuth2AuthenticationToken){
+        if (authentication instanceof OAuth2AuthenticationToken) {
             OAuth2User oauth2User = ((OAuth2AuthenticationToken) authentication).getPrincipal();
             Map<String, Object> attributes = oauth2User.getAttributes();
-            SuccessSignInDto successSignInDto = oAuthService.authenticate(attributes);
+            SuccessSignInDto successSignInDto = oauthservice.authenticate(attributes);
             ObjectMapper objectMapper = new ObjectMapper();
             String json = objectMapper.writeValueAsString(successSignInDto);
             response.setContentType("application/json");
             response.getWriter().write(json);
             response.getWriter().flush();
-        }else{
+        } else {
             logger.error("Failed to login with OAuth2AuthenticationToken");
         }
-
     }
 }
