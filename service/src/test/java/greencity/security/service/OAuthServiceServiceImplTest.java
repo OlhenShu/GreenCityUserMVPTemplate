@@ -1,19 +1,17 @@
 package greencity.security.service;
 
-import greencity.ModelUtils;
 import greencity.dto.user.UserVO;
 import greencity.entity.User;
 import greencity.enums.UserStatus;
 import greencity.exception.exceptions.BadUserStatusException;
-import greencity.exception.exceptions.UserBlockedException;
 import greencity.repository.UserRepo;
+import greencity.security.dto.SuccessSignInDto;
 import greencity.security.jwt.JwtTool;
 import greencity.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -23,7 +21,8 @@ import java.util.HashMap;
 
 import static greencity.ModelUtils.getUser;
 import static greencity.ModelUtils.getUserVO;
-import static org.junit.jupiter.api.Assertions.*;
+import static greencity.enums.Role.ROLE_USER;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -42,22 +41,41 @@ class OAuthServiceServiceImplTest {
     @InjectMocks
     private OAuthServiceServiceImpl oAuthServiceService;
 
-    private final HashMap<String, Object> attributes = new HashMap<>() {{
+    private final HashMap<String, Object> attributesForGoogleAuth = new HashMap<>() {{
         put("email", "test@email.com");
         put("name", "test");
         put("picture", "https://google.com");
     }};
 
+    private final HashMap<String, Object> attributesForFacebookAuth = new HashMap<>() {{
+        put("email", "test@email.com");
+        put("name", "test");
+        put("picture", "url=https://facebook.com");
+    }};
+
     @Test
-    void authenticate() {
+    void authenticateGoogleOAuth() {
         User user = getUser();
         when(userService.findByEmail(anyString())).thenReturn(getUserVO());
-        when(userRepo.save(userRepo.save(user))).thenReturn(user);
+        when(userRepo.save(any(User.class))).thenReturn(user);
         when(modelMapper.map(user, UserVO.class)).thenReturn(getUserVO());
-        when(jwtTool.generateTokenKey()).thenReturn("access-token");
-        oAuthServiceService.authenticate(attributes);
+        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn("access-token");
+        when(jwtTool.createRefreshToken(any())).thenReturn("refresh-token");
+        oAuthServiceService.authenticate(attributesForGoogleAuth);
         verify(userService, times(1)).findByEmail(anyString());
-        verify(userRepo, times(1)).save(any());
+    }
+
+
+    @Test
+    void authenticateFacebookOAuth() {
+        User user = getUser();
+        when(userService.findByEmail(anyString())).thenReturn(null);
+        when(userRepo.save(any(User.class))).thenReturn(user);
+        when(modelMapper.map(user, UserVO.class)).thenReturn(getUserVO());
+        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn("access-token");
+        when(jwtTool.createRefreshToken(any())).thenReturn("refresh-token");
+        oAuthServiceService.authenticate(attributesForFacebookAuth);
+        verify(userService, times(1)).findByEmail(anyString());
     }
 
     @Test
@@ -65,7 +83,8 @@ class OAuthServiceServiceImplTest {
         UserVO userVO = getUserVO();
         userVO.setUserStatus(UserStatus.BLOCKED);
         when(userService.findByEmail(anyString())).thenReturn(userVO);
-        assertThrows(BadUserStatusException.class, () -> oAuthServiceService.authenticate(attributes));
+        assertThrows(BadUserStatusException.class,
+                () -> oAuthServiceService.authenticate(attributesForGoogleAuth));
     }
 
     @Test
@@ -73,6 +92,7 @@ class OAuthServiceServiceImplTest {
         UserVO userVO = getUserVO();
         userVO.setUserStatus(UserStatus.DEACTIVATED);
         when(userService.findByEmail(anyString())).thenReturn(userVO);
-        assertThrows(BadUserStatusException.class, () -> oAuthServiceService.authenticate(attributes));
+        assertThrows(BadUserStatusException.class,
+                () -> oAuthServiceService.authenticate(attributesForGoogleAuth));
     }
 }

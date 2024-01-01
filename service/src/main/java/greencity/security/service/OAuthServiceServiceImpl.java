@@ -64,6 +64,7 @@ public class OAuthServiceServiceImpl implements OAuthService {
             newUser.setShowEcoPlace(true);
             newUser.setShowShoppingList(true);
             var savedUser = userRepo.save(newUser);
+
             userVO = modelMapper.map(savedUser, UserVO.class);
             log.info("Facebook/Google sign-up non existed user - {}", userVO.getEmail());
             return getSuccessSignInDto(userVO);
