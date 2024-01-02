@@ -55,6 +55,7 @@ class CustomOAuth2AuthenticationSuccessHandlerTest {
                                 new SimpleGrantedAuthority("ROLE_USER"))), attributes, "name"));
         customOAuth2AuthenticationSuccessHandler
                 .onAuthenticationSuccess(mockHttpServletRequest, mockHttpServletResponse, auth);
+        verify(oAuthService).authenticate(attributes);
         verify(customOAuth2AuthenticationSuccessHandler)
                 .onAuthenticationSuccess(mockHttpServletRequest, mockHttpServletResponse, auth);
     }
@@ -68,6 +69,7 @@ class CustomOAuth2AuthenticationSuccessHandlerTest {
         Mockito.when(secCont.getAuthentication()).thenReturn(auth);
         customOAuth2AuthenticationSuccessHandler
                 .onAuthenticationSuccess(mockHttpServletRequest, mockHttpServletResponse, auth);
+        verify(oAuthService,times(0)).authenticate(anyMap());
         verify(customOAuth2AuthenticationSuccessHandler)
                 .onAuthenticationSuccess(mockHttpServletRequest, mockHttpServletResponse, auth);
     }

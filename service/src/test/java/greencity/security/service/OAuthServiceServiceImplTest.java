@@ -8,6 +8,8 @@ import greencity.repository.UserRepo;
 import greencity.security.dto.SuccessSignInDto;
 import greencity.security.jwt.JwtTool;
 import greencity.service.UserService;
+import io.jsonwebtoken.lang.Assert;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -59,9 +61,13 @@ class OAuthServiceServiceImplTest {
         when(userService.findByEmail(anyString())).thenReturn(getUserVO());
         when(userRepo.save(any(User.class))).thenReturn(user);
         when(modelMapper.map(user, UserVO.class)).thenReturn(getUserVO());
-        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn("access-token");
-        when(jwtTool.createRefreshToken(any())).thenReturn("refresh-token");
-        oAuthServiceService.authenticate(attributesForGoogleAuth);
+        String accessToken = "access-token";
+        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn(accessToken);
+        String refreshToken = "refresh-token";
+        when(jwtTool.createRefreshToken(any())).thenReturn(refreshToken);
+        var actual = oAuthServiceService.authenticate(attributesForGoogleAuth);
+        var expected = new SuccessSignInDto(user.getId(), accessToken, refreshToken, user.getName(), false);
+        assertEquals(actual,expected);
         verify(userService, times(1)).findByEmail(anyString());
     }
 
@@ -72,9 +78,13 @@ class OAuthServiceServiceImplTest {
         when(userService.findByEmail(anyString())).thenReturn(null);
         when(userRepo.save(any(User.class))).thenReturn(user);
         when(modelMapper.map(user, UserVO.class)).thenReturn(getUserVO());
-        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn("access-token");
-        when(jwtTool.createRefreshToken(any())).thenReturn("refresh-token");
-        oAuthServiceService.authenticate(attributesForFacebookAuth);
+        String accessToken = "access-token";
+        when(jwtTool.createAccessToken("taras@gmail.com", ROLE_USER)).thenReturn(accessToken);
+        String refreshToken = "refresh-token";
+        when(jwtTool.createRefreshToken(any())).thenReturn(refreshToken);
+        var actual = oAuthServiceService.authenticate(attributesForFacebookAuth);
+        var expected = new SuccessSignInDto(user.getId(), accessToken, refreshToken, user.getName(), false);
+        assertEquals(actual,expected);
         verify(userService, times(1)).findByEmail(anyString());
     }
 
