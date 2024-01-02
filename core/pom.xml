@@ -17,7 +17,6 @@
         <jjwt.version>0.9.1</jjwt.version>
         <modelmapper.version>2.3.6</modelmapper.version>
         <mockito-junit-jupiter.version>3.3.3</mockito-junit-jupiter.version>
-        <spring-social-facebook.version>2.0.3.RELEASE</spring-social-facebook.version>
     </properties>
 
     <artifactId>core</artifactId>
@@ -88,12 +87,6 @@
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
             <version>${google.api-client.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.social</groupId>
-            <artifactId>spring-social-facebook</artifactId>
-            <version>${spring-social-facebook.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
