@@ -39,7 +39,7 @@ class CustomOAuth2AuthenticationSuccessHandlerTest {
     private final HashMap<String, Object> attributes = new HashMap<>() {{
         put("email", "test@email.com");
         put("name", "test");
-        put("picture", "https://google.com");
+        put("picture", "https://lh3.googleusercontent.com/a/ACg8ocK2YyshyCq_qpPpNl0bS4xsQhY-I0NASRM7Hm-kIsYYEA=s96-c");
     }};
 
     @Test
