@@ -62,8 +62,9 @@ class EmailServiceImplTest {
         String authorFirstName = "test author first name";
         String placeName = "test place name";
         String placeStatus = "test place status";
-        String authorEmail = "test author email";
-        service.sendChangePlaceStatusEmail(authorFirstName, placeName, placeStatus, authorEmail);
+        User user = ModelUtils.getUser();
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        service.sendChangePlaceStatusEmail(authorFirstName, placeName, placeStatus, user.getEmail());
         verify(javaMailSender).createMimeMessage();
     }
 
@@ -157,7 +158,6 @@ class EmailServiceImplTest {
 
     @Test
     void sendMessageOfActivation() {
-        List<String> test = List.of("test", "test");
         UserActivationDto test1 = UserActivationDto.builder()
             .lang("en")
             .email("test@ukr.net")
