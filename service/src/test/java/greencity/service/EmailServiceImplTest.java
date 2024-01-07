@@ -122,6 +122,13 @@ class EmailServiceImplTest {
         verify(javaMailSender).createMimeMessage();
     }
 
+    @Test
+    void notSentWithUserNotExist() {
+        assertThrows(NotFoundException.class,
+                () -> service.sendChangePlaceStatusEmail("testFirstname", "test place name",
+                        "test status", "test@email.com"));
+    }
+
     @ParameterizedTest
     @CsvSource(value = {"1, Test, test@gmail.com, token, ru, true",
         "1, Test, test@gmail.com, token, ua, false",
