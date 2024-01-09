@@ -159,10 +159,10 @@ class UserServiceImplTest {
     @Test
     void saveTest() {
         when(userRepo.findByEmail(userEmail)).thenReturn(Optional.ofNullable(user));
+        when(modelMapper.map(user, UserVO.class)).thenReturn(userVO);
         when(userService.findByEmail(userEmail)).thenReturn(userVO);
         when(modelMapper.map(userVO, User.class)).thenReturn(user);
         when(userRepo.save(user)).thenReturn(user);
-        when(modelMapper.map(user, UserVO.class)).thenReturn(userVO);
         assertEquals(userVO, userService.save(userVO));
     }
 
