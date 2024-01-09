@@ -26,6 +26,7 @@ import greencity.repository.UserRepo;
 import greencity.repository.options.UserFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.AssertionFailure;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
@@ -71,7 +72,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO save(UserVO userVO) {
         User user = modelMapper.map(userVO, User.class);
-        return modelMapper.map(userRepo.save(user), UserVO.class);
+        try {
+            return modelMapper.map(userRepo.save(user), UserVO.class);
+        }catch (AssertionFailure ex){
+            throw new BadRequestException(ErrorMessage.BAD_PASSWORD);
+        }
     }
 
     /**
