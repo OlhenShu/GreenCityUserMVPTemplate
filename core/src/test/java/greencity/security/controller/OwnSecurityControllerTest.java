@@ -170,6 +170,7 @@ class OwnSecurityControllerTest {
         verify(ownSecurityService).updateCurrentPassword(dto, "test@mail.com");
     }
 
+
     @Test
     @SneakyThrows
     void hasPassword() {

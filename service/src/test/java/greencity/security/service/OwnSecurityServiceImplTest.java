@@ -287,6 +287,15 @@ class OwnSecurityServiceImplTest {
     }
 
     @Test
+    void testEmailVerification() {
+        updatePasswordDto.setNewPassword("123");
+        updatePasswordDto.setConfirmPassword("123");
+        when(userService.findByEmail("test@gmail.com")).thenReturn(verifiedUser);
+        assertThrows(PasswordsDoNotMatchesException.class,
+                () -> ownSecurityService.updateCurrentPassword(updatePasswordDto, "test@gmail.com"));
+    }
+
+    @Test
     void updateCurrentPasswordTest() {
         when(userService.findByEmail("test@gmail.com")).thenReturn(verifiedUser);
         when(passwordEncoder.matches(updatePasswordDto.getCurrentPassword(), verifiedUser.getOwnSecurity().getPassword())).thenReturn(true);
