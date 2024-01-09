@@ -41,6 +41,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -421,7 +422,7 @@ public class UserController {
         @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
     })
     @GetMapping("/findByEmail")
-    public ResponseEntity<UserVO> findByEmail(@RequestParam String email) {
+    public ResponseEntity<UserVO> findByEmail(@RequestParam @Email String email) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByEmail(email));
     }
 
