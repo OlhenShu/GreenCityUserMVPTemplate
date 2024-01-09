@@ -23,6 +23,7 @@ import greencity.repository.UserRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -45,6 +46,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static greencity.ModelUtils.*;
+import static greencity.enums.Role.ROLE_ADMIN;
 import static greencity.enums.Role.ROLE_USER;
 import static greencity.enums.UserStatus.ACTIVATED;
 import static greencity.enums.UserStatus.DEACTIVATED;
@@ -378,11 +380,12 @@ class UserServiceImplTest {
     @Test
     void getUserUpdateDtoByEmail() {
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        user.setRole(ROLE_ADMIN);
         UserUpdateDto userUpdateDto = new UserUpdateDto();
         userUpdateDto.setName(user.getName());
         userUpdateDto.setEmailNotification(user.getEmailNotification());
         when(modelMapper.map(any(), any())).thenReturn(userUpdateDto);
-        UserUpdateDto userInitialsByEmail = userService.getUserUpdateDtoByEmail("");
+        UserUpdateDto userInitialsByEmail = userService.getUserUpdateDtoByEmail(user.getEmail());
         assertEquals(userInitialsByEmail.getName(), user.getName());
         assertEquals(userInitialsByEmail.getEmailNotification(), user.getEmailNotification());
     }
@@ -442,7 +445,8 @@ class UserServiceImplTest {
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
         when(restClient.findAmountOfHabitsInProgress(TestConst.SIMPLE_LONG_NUMBER))
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
-        userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER);
+        when(userRepo.findById(anyLong())).thenReturn(Optional.of(TEST_ADMIN));
+        UserProfileStatisticsDto userProfileStatistics = userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER);
         assertEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,
             userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER));
         assertNotEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,
