@@ -15,7 +15,11 @@ import javax.validation.constraints.NotBlank;
 public class UpdatePasswordDto {
     @NotBlank
     @PasswordValidation
-    private String password;
+    private String currentPassword;
+
+    @NotBlank
+    @PasswordValidation
+    private String newPassword;
 
     @NotBlank
     @PasswordValidation
