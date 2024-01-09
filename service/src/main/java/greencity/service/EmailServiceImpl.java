@@ -39,6 +39,7 @@ import java.util.concurrent.Executor;
 @Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
+    private static final String PARAM_USER_ID = "&user_id=";
     private final JavaMailSender javaMailSender;
     private final ITemplateEngine templateEngine;
     private final UserRepo userRepo;
@@ -47,7 +48,6 @@ public class EmailServiceImpl implements EmailService {
     private final String ecoNewsLink;
     private final String serverLink;
     private final String senderEmailAddress;
-    private static final String PARAM_USER_ID = "&user_id=";
 
     /**
      * Constructor.
@@ -72,17 +72,21 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendChangePlaceStatusEmail(String authorName, String placeName,
-        String placeStatus, String authorEmail) {
-        log.info(LogMessage.IN_SEND_CHANGE_PLACE_STATUS_EMAIL, placeName);
-        Map<String, Object> model = new HashMap<>();
-        model.put(EmailConstants.CLIENT_LINK, clientLink);
-        model.put(EmailConstants.USER_NAME, authorName);
-        model.put(EmailConstants.PLACE_NAME, placeName);
-        model.put(EmailConstants.STATUS, placeStatus);
+    public void sendChangePlaceStatusEmail(String receiverName, String placeName,
+        String placeStatus, String receiverEmail) {
+        if (userRepo.findByEmail(receiverEmail).isPresent()) {
+            log.info(LogMessage.IN_SEND_CHANGE_PLACE_STATUS_EMAIL, placeName);
+            Map<String, Object> model = new HashMap<>();
+            model.put(EmailConstants.CLIENT_LINK, clientLink);
+            model.put(EmailConstants.USER_NAME, receiverName);
+            model.put(EmailConstants.PLACE_NAME, placeName);
+            model.put(EmailConstants.STATUS, placeStatus);
 
-        String template = createEmailTemplate(model, EmailConstants.CHANGE_PLACE_STATUS_EMAIL_PAGE);
-        sendEmail(authorEmail, EmailConstants.GC_CONTRIBUTORS, template);
+            String template = createEmailTemplate(model, EmailConstants.CHANGE_PLACE_STATUS_EMAIL_PAGE);
+            sendEmail(receiverEmail, EmailConstants.GC_CONTRIBUTORS, template);
+        } else {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + receiverEmail);
+        }
     }
 
     @Override
@@ -123,18 +127,24 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendCreatedNewsForAuthor(EcoNewsForSendEmailDto newDto) {
-        Map<String, Object> model = new HashMap<>();
-        model.put(EmailConstants.ECO_NEWS_LINK, ecoNewsLink);
-        model.put(EmailConstants.NEWS_RESULT, newDto);
-        try {
-            model.put(EmailConstants.UNSUBSCRIBE_LINK, serverLink + "/newSubscriber/unsubscribe?email="
-                + URLEncoder.encode(newDto.getAuthor().getEmail(), StandardCharsets.UTF_8.toString())
-                + "&unsubscribeToken=" + newDto.getUnsubscribeToken());
-        } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage());
+        String authorEmail = newDto.getAuthor().getEmail();
+        if (userRepo.findByEmail(authorEmail).isPresent()) {
+            Map<String, Object> model = new HashMap<>();
+            model.put(EmailConstants.ECO_NEWS_LINK, ecoNewsLink);
+            model.put(EmailConstants.NEWS_RESULT, newDto);
+            try {
+                model.put(EmailConstants.UNSUBSCRIBE_LINK, serverLink + "/newSubscriber/unsubscribe?email="
+                    + URLEncoder.encode(newDto.getAuthor().getEmail(), StandardCharsets.UTF_8.toString())
+                    + "&unsubscribeToken=" + newDto.getUnsubscribeToken());
+            } catch (UnsupportedEncodingException e) {
+                log.error(e.getMessage());
+            }
+
+            String template = createEmailTemplate(model, EmailConstants.NEWS_RECEIVE_EMAIL_PAGE);
+            sendEmail(newDto.getAuthor().getEmail(), EmailConstants.CREATED_NEWS, template);
+        } else {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + authorEmail);
         }
-        String template = createEmailTemplate(model, EmailConstants.NEWS_RECEIVE_EMAIL_PAGE);
-        sendEmail(newDto.getAuthor().getEmail(), EmailConstants.CREATED_NEWS, template);
     }
 
     /**
