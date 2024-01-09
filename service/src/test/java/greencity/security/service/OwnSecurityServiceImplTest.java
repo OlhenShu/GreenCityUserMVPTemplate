@@ -289,14 +289,15 @@ class OwnSecurityServiceImplTest {
     @Test
     void testEqualsNewPasswordAndConfirmPassword() {
         updatePasswordDto.setNewPassword("123");
-        updatePasswordDto.setConfirmPassword("123");
+        updatePasswordDto.setConfirmPassword("123442");
 
         when(userService.findByEmail("test@gmail.com")).thenReturn(verifiedUser);
+        when(passwordEncoder.matches(updatePasswordDto.getCurrentPassword(), verifiedUser.getOwnSecurity().getPassword())).thenReturn(true);
 
         PasswordsDoNotMatchesException exception = assertThrows(PasswordsDoNotMatchesException.class,
                 () -> ownSecurityService.updateCurrentPassword(updatePasswordDto, "test@gmail.com"));
 
-        String expectedMessage = "Incorrect password";
+        String expectedMessage = "The password doesn't match";
         String actualMessage = exception.getMessage();
 
         assertEquals(expectedMessage, actualMessage);
