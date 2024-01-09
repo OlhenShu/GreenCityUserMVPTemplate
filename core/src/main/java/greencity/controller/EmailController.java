@@ -32,19 +32,31 @@ public class EmailController {
      * @param message - object with all necessary data for sending email
      * @author Taras Kavkalo
      */
+    @ApiOperation(value = "Sending news for users who subscribed for updates in eco-news.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
     @PostMapping("/addEcoNews")
-    public ResponseEntity<Object> addEcoNews(@RequestBody EcoNewsForSendEmailDto message) {
+    public ResponseEntity<Object> addEcoNews(@RequestBody @Valid EcoNewsForSendEmailDto message) {
         emailService.sendCreatedNewsForAuthor(message);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
     /**
-     * Method for sending notification to userss who subscribed for updates about
+     * Method for sending notification to users who subscribed for updates about
      * added new places.
      *
      * @param message - object with all necessary data for sending email
      * @author Taras Kavkalo
      */
+
+    @ApiOperation(value = "Notification to users who subscribed for updates about added new places.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
     @PostMapping("/sendReport")
     public ResponseEntity<Object> sendReport(@RequestBody SendReportEmailMessage message) {
         emailService.sendAddedNewPlacesReportEmail(message.getSubscribers(), message.getCategoriesDtoWithPlacesDtoMap(),
@@ -58,6 +70,11 @@ public class EmailController {
      * @param message - object with all necessary data for sending email
      * @author Taras Kavkalo
      */
+    @ApiOperation(value = "Sending simple notification to user about status change")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
     @PostMapping("/changePlaceStatus")
     public ResponseEntity<Object> changePlaceStatus(@RequestBody @Valid SendChangePlaceStatusEmailMessage message) {
         emailService.sendChangePlaceStatusEmail(message.getAuthorFirstName(), message.getPlaceName(),
@@ -72,6 +89,11 @@ public class EmailController {
      *                              email
      * @author Taras Kavkalo
      */
+    @ApiOperation(value = "Email notification about not marked habits during 3 last days")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
     @PostMapping("/sendHabitNotification")
     public ResponseEntity<Object> sendHabitNotification(
         @RequestBody @Valid SendHabitNotification sendHabitNotification) {
@@ -86,6 +108,11 @@ public class EmailController {
      *            sending email.
      * @author Zakhar Veremchuk
      */
+    @ApiOperation(value = "Email notification about violation to user on email")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = HttpStatuses.OK),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+    })
     @PostMapping("/sendUserViolation")
     public ResponseEntity<Object> sendUserViolation(@RequestBody UserViolationMailDto dto) {
         emailService.sendUserViolationEmail(dto);

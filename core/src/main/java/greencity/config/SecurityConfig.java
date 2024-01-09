@@ -2,7 +2,9 @@ package greencity.config;
 
 import greencity.security.filters.AccessTokenAuthenticationFilter;
 import greencity.security.jwt.JwtTool;
+import greencity.security.handlers.CustomOAuth2AuthenticationSuccessHandler;
 import greencity.security.providers.JwtAuthenticationProvider;
+import greencity.security.service.OAuthService;
 import greencity.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +32,7 @@ import static greencity.constant.AppConstant.EMPLOYEE;
 import static greencity.constant.AppConstant.MODERATOR;
 import static greencity.constant.AppConstant.UBS_EMPLOYEE;
 import static greencity.constant.AppConstant.USER;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
+import static javax.servlet.http.HttpServletResponse.*;
 
 /**
  * Config for security.
@@ -44,6 +45,7 @@ import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTool jwtTool;
     private final UserService userService;
+    private final OAuthService oauthservice;
     private static final String USER_LINK = "/user";
 
     /**
@@ -51,9 +53,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
 
     @Autowired
-    public SecurityConfig(JwtTool jwtTool, UserService userService) {
+    public SecurityConfig(JwtTool jwtTool, UserService userService,OAuthService oauthservice) {
         this.jwtTool = jwtTool;
         this.userService = userService;
+        this.oauthservice = oauthservice;
     }
 
     /**
@@ -98,7 +101,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/token",
                 "/socket/**",
                 "/user/findAllByEmailNotification",
-                "/user/checkByUuid")
+                "/user/checkByUuid",
+                "/login/**",
+                "/oauth2/**")
             .permitAll()
             .antMatchers(HttpMethod.POST,
                 "/ownSecurity/signUp",
@@ -133,7 +138,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/user/shopping-list-items",
                 "/user/{userId}/habit",
                 "/email/sendHabitNotification",
-                "/ownSecurity/set-password")
+                "/ownSecurity/set-password",
+                "/ownSecurity/set-password",
+                "/email/changePlaceStatus")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.PUT,
                 "/ownSecurity/changePassword",
@@ -189,7 +196,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/css/**",
                 "/img/**")
             .permitAll()
-            .anyRequest().hasAnyRole(ADMIN);
+            .anyRequest().hasAnyRole(ADMIN)
+            .and()
+            .oauth2Login()
+            .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oauthservice))
+            .failureHandler((req, resp, exc) -> resp.sendError(SC_BAD_REQUEST, exc.getMessage()));
     }
 
     /**

@@ -2,6 +2,7 @@ package greencity.service;
 
 import greencity.ModelUtils;
 import greencity.constant.ErrorMessage;
+import static greencity.ModelUtils.getUser;
 import greencity.dto.category.CategoryDto;
 import greencity.dto.econews.AddEcoNewsDtoResponse;
 import greencity.dto.econews.EcoNewsForSendEmailDto;
@@ -63,8 +64,9 @@ class EmailServiceImplTest {
         String authorFirstName = "test author first name";
         String placeName = "test place name";
         String placeStatus = "test place status";
-        String authorEmail = "test author email";
-        service.sendChangePlaceStatusEmail(authorFirstName, placeName, placeStatus, authorEmail);
+        User user = ModelUtils.getUser();
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        service.sendChangePlaceStatusEmail(authorFirstName, placeName, placeStatus, user.getEmail());
         verify(javaMailSender).createMimeMessage();
     }
 
@@ -83,11 +85,21 @@ class EmailServiceImplTest {
     }
 
     @Test
+    void sendCreatedNewsForAuthorByNotExistingEmailThrowsNotFoundExceptionTest() {
+        EcoNewsForSendEmailDto dto = new EcoNewsForSendEmailDto();
+        PlaceAuthorDto placeAuthorDto = new PlaceAuthorDto();
+        placeAuthorDto.setEmail("test@gmail.com");
+        dto.setAuthor(placeAuthorDto);
+        assertThrows(NotFoundException.class,() -> service.sendCreatedNewsForAuthor(dto));
+    }
+
+    @Test
     void sendCreatedNewsForAuthorTest() {
         EcoNewsForSendEmailDto dto = new EcoNewsForSendEmailDto();
         PlaceAuthorDto placeAuthorDto = new PlaceAuthorDto();
         placeAuthorDto.setEmail("test@gmail.com");
         dto.setAuthor(placeAuthorDto);
+        when(userRepo.findByEmail("test@gmail.com")).thenReturn(Optional.ofNullable(getUser()));
         service.sendCreatedNewsForAuthor(dto);
         verify(javaMailSender).createMimeMessage();
     }
@@ -120,6 +132,13 @@ class EmailServiceImplTest {
     void sendApprovalEmail() {
         service.sendApprovalEmail(1L, "userName", "test@gmail.com", "someToken");
         verify(javaMailSender).createMimeMessage();
+    }
+
+    @Test
+    void notSentWithUserNotExist() {
+        assertThrows(NotFoundException.class,
+                () -> service.sendChangePlaceStatusEmail("testFirstname", "test place name",
+                        "test status", "test@email.com"));
     }
 
     @ParameterizedTest
@@ -165,7 +184,6 @@ class EmailServiceImplTest {
 
     @Test
     void sendMessageOfActivation() {
-        List<String> test = List.of("test", "test");
         UserActivationDto test1 = UserActivationDto.builder()
             .lang("en")
             .email("test@ukr.net")
