@@ -36,6 +36,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
@@ -275,6 +276,13 @@ class UserServiceImplTest {
         String email = "email";
 
         assertThrows(WrongEmailException.class, () -> userService.findIdByEmail(email));
+    }
+
+    @Test
+    void accessDeniedExceptionThrownTest() {
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        assertThrows(AccessDeniedException.class,
+                () -> userService.getUserUpdateDtoByEmail("test@gmail.com"));
     }
 
     @Test

@@ -1,8 +1,8 @@
 package greencity.config;
 
 import greencity.security.filters.AccessTokenAuthenticationFilter;
-import greencity.security.jwt.JwtTool;
 import greencity.security.handlers.CustomOAuth2AuthenticationSuccessHandler;
+import greencity.security.jwt.JwtTool;
 import greencity.security.providers.JwtAuthenticationProvider;
 import greencity.security.service.OAuthService;
 import greencity.service.UserService;
@@ -24,16 +24,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Arrays;
 import java.util.Collections;
+
 import static greencity.constant.AppConstant.*;
-import static javax.servlet.http.HttpServletResponse.SC_FORBIDDEN;
-import static javax.servlet.http.HttpServletResponse.SC_UNAUTHORIZED;
-import static greencity.constant.AppConstant.ADMIN;
-import static greencity.constant.AppConstant.EMPLOYEE;
-import static greencity.constant.AppConstant.MODERATOR;
-import static greencity.constant.AppConstant.UBS_EMPLOYEE;
-import static greencity.constant.AppConstant.USER;
 import static javax.servlet.http.HttpServletResponse.*;
 
 /**
