@@ -147,7 +147,7 @@ class CustomExceptionHandlerTest {
         ExceptionResponse exceptionResponse = new ExceptionResponse(objectMap);
         when(errorAttributes.getErrorAttributes(webRequest, true)).thenReturn(objectMap);
         assertEquals(customExceptionHandler.handleWrongIdException(wrongIdException, webRequest),
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse));
+            ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse));
 
     }
 
