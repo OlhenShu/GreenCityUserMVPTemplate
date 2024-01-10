@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -67,7 +68,6 @@ class CustomExceptionHandlerTest {
         ResponseEntity<Object> body = status.body(validationDto);
         assertEquals(customExceptionHandler.handleWrongPasswordException(actual), body);
     }
-
     @Test
     void handleWrongEmailException() {
         WrongEmailException actual = new WrongEmailException("email");
@@ -75,6 +75,15 @@ class CustomExceptionHandlerTest {
         ResponseEntity.BodyBuilder status = ResponseEntity.status(HttpStatus.BAD_REQUEST);
         ResponseEntity<Object> body = status.body(validationDto);
         assertEquals(customExceptionHandler.handleWrongEmailException(actual), body);
+    }
+
+    @Test
+    void handleAccessDeniedException() {
+        AccessDeniedException accessDeniedException = new AccessDeniedException("test");
+        ExceptionResponse exceptionResponse = new ExceptionResponse(objectMap);
+        when(errorAttributes.getErrorAttributes(webRequest, true)).thenReturn(objectMap);
+        assertEquals(customExceptionHandler.handleAccessDeniedException(accessDeniedException, webRequest),
+                ResponseEntity.status(HttpStatus.FORBIDDEN).body(exceptionResponse));
     }
 
     @Test

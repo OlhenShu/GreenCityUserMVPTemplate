@@ -523,15 +523,6 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
     }
 
-    private PageableDto<UserProfilePictureDto> getPageableDto(
-        List<UserProfilePictureDto> userProfilePictureDtoList, Page<User> pageUsers) {
-        return new PageableDto<>(
-            userProfilePictureDtoList,
-            pageUsers.getTotalElements(),
-            pageUsers.getPageable().getPageNumber(),
-            pageUsers.getTotalPages());
-    }
-
     /**
      * Save user profile information {@link UserVO}.
      *
@@ -608,8 +599,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileStatisticsDto getUserProfileStatistics(Long userId) {
-        userRepo.findById(userId)
-                .orElseThrow(() -> new NotFoundException(String.format("User with id: %d not found", userId)));
+        if (userRepo.findById(userId).isEmpty()) {
+            throw new NotFoundException(String.format("User with id: %d not found", userId));
+        }
         Long amountOfPublishedNewsByUserId = restClient.findAmountOfPublishedNews(userId);
         Long amountOfAcquiredHabitsByUserId = restClient.findAmountOfAcquiredHabits(userId);
         Long amountOfHabitsInProgressByUserId = restClient.findAmountOfHabitsInProgress(userId);
