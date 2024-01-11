@@ -8,6 +8,7 @@ public class RestTemplateLinks {
     public static final String HABIT_STATISTIC_ACQUIRED_COUNT = "/habit/statistic/acquired/count";
     public static final String HABIT_STATISTIC_IN_PROGRESS_COUNT = "/habit/statistic/in-progress/count";
     public static final String USER_ID = "?userId=";
+    public static final String EVENTS_COUNT = "/events/count";
 
     private RestTemplateLinks() {
     }

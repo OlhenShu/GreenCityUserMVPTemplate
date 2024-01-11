@@ -605,10 +605,12 @@ public class UserServiceImpl implements UserService {
         Long amountOfPublishedNewsByUserId = restClient.findAmountOfPublishedNews(userId);
         Long amountOfAcquiredHabitsByUserId = restClient.findAmountOfAcquiredHabits(userId);
         Long amountOfHabitsInProgressByUserId = restClient.findAmountOfHabitsInProgress(userId);
+        Long amountOfEventsByUserId = restClient.findAmountOfEvents(userId);
         return UserProfileStatisticsDto.builder()
                 .amountPublishedNews(amountOfPublishedNewsByUserId)
                 .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
                 .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
+                .amountEvents(amountOfEventsByUserId)
                 .build();
     }
 
