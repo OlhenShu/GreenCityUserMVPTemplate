@@ -388,7 +388,6 @@ public class UserController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}/profileStatistics/")
     public ResponseEntity<UserProfileStatisticsDto> getUserProfileStatistics(
             @ApiParam("Id of current user. Cannot be empty.") @PathVariable @CurrentUserId Long userId) {
