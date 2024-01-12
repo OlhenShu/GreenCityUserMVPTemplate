@@ -23,6 +23,7 @@ import greencity.repository.UserRepo;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -35,6 +36,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.sql.Timestamp;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static greencity.ModelUtils.*;
+import static greencity.enums.Role.ROLE_ADMIN;
 import static greencity.enums.Role.ROLE_USER;
 import static greencity.enums.UserStatus.ACTIVATED;
 import static greencity.enums.UserStatus.DEACTIVATED;
@@ -159,10 +162,10 @@ class UserServiceImplTest {
     @Test
     void saveTest() {
         when(userRepo.findByEmail(userEmail)).thenReturn(Optional.ofNullable(user));
+        when(modelMapper.map(user, UserVO.class)).thenReturn(userVO);
         when(userService.findByEmail(userEmail)).thenReturn(userVO);
         when(modelMapper.map(userVO, User.class)).thenReturn(user);
         when(userRepo.save(user)).thenReturn(user);
-        when(modelMapper.map(user, UserVO.class)).thenReturn(userVO);
         assertEquals(userVO, userService.save(userVO));
     }
 
@@ -276,6 +279,13 @@ class UserServiceImplTest {
     }
 
     @Test
+    void accessDeniedExceptionThrownTest() {
+        when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        assertThrows(AccessDeniedException.class,
+                () -> userService.getUserUpdateDtoByEmail("test@gmail.com"));
+    }
+
+    @Test
     void findUuIdByEmailTest() {
         String email = "email";
         when(userRepo.findUuidByEmail(email)).thenReturn(Optional.of("email"));
@@ -378,11 +388,12 @@ class UserServiceImplTest {
     @Test
     void getUserUpdateDtoByEmail() {
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.of(user));
+        user.setRole(ROLE_ADMIN);
         UserUpdateDto userUpdateDto = new UserUpdateDto();
         userUpdateDto.setName(user.getName());
         userUpdateDto.setEmailNotification(user.getEmailNotification());
         when(modelMapper.map(any(), any())).thenReturn(userUpdateDto);
-        UserUpdateDto userInitialsByEmail = userService.getUserUpdateDtoByEmail("");
+        UserUpdateDto userInitialsByEmail = userService.getUserUpdateDtoByEmail(user.getEmail());
         assertEquals(userInitialsByEmail.getName(), user.getName());
         assertEquals(userInitialsByEmail.getEmailNotification(), user.getEmailNotification());
     }
@@ -442,7 +453,8 @@ class UserServiceImplTest {
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
         when(restClient.findAmountOfHabitsInProgress(TestConst.SIMPLE_LONG_NUMBER))
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
-        userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER);
+        when(userRepo.findById(anyLong())).thenReturn(Optional.of(TEST_ADMIN));
+        UserProfileStatisticsDto userProfileStatistics = userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER);
         assertEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,
             userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER));
         assertNotEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,

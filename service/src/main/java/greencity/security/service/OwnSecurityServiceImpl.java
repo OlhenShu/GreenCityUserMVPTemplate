@@ -288,6 +288,8 @@ public class OwnSecurityServiceImpl implements OwnSecurityService {
 
     /**
      * {@inheritDoc}
+     *
+     * @author Kizerov Dmytro
      */
     @Override
     @Transactional
@@ -298,10 +300,14 @@ public class OwnSecurityServiceImpl implements OwnSecurityService {
             throw new EmailNotVerified(ErrorMessage.USER_EMAIL_IS_NOT_VERIFIED);
         }
 
-        if (!updatePasswordDto.getPassword().equals(updatePasswordDto.getConfirmPassword())) {
-            throw new PasswordsDoNotMatchesException(ErrorMessage.PASSWORDS_DO_NOT_MATCH);
+        if (!passwordEncoder.matches(updatePasswordDto.getCurrentPassword(), user.getOwnSecurity().getPassword())) {
+            throw new PasswordsDoNotMatchesException(ErrorMessage.INCORRECT_PASSWORD);
         }
-        updatePassword(updatePasswordDto.getPassword(), user.getId());
+
+        if (!updatePasswordDto.getNewPassword().equals(updatePasswordDto.getConfirmPassword())) {
+            throw new PasswordsDoNotMatchesException(ErrorMessage.PASSWORD_DOES_NOT_MATCH);
+        }
+        updatePassword(updatePasswordDto.getNewPassword(), user.getId());
     }
 
     /**
