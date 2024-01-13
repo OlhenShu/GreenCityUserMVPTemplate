@@ -91,7 +91,8 @@ public class EmailController {
     @ApiOperation(value = "Email notification about not marked habits during 3 last days")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
-            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED)
     })
     @PostMapping("/sendHabitNotification")
     public ResponseEntity<Object> sendHabitNotification(
