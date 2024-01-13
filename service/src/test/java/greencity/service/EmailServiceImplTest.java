@@ -1,6 +1,7 @@
 package greencity.service;
 
 import greencity.ModelUtils;
+import greencity.constant.ErrorMessage;
 import static greencity.ModelUtils.getUser;
 import greencity.dto.category.CategoryDto;
 import greencity.dto.econews.AddEcoNewsDtoResponse;
@@ -157,10 +158,15 @@ class EmailServiceImplTest {
 
     @Test
     void sendHabitNotification() {
-        String existingEmail = "service@greencity.ua";
-        when(userRepo.existsUserByEmail(existingEmail)).thenReturn(true);
-        service.sendHabitNotification("userName", existingEmail);
+        when(userRepo.findByEmail("test@email.com")).thenReturn(Optional.ofNullable(ModelUtils.getUser()));
+        service.sendHabitNotification("userName", "test@email.com");
         verify(javaMailSender).createMimeMessage();
+    }
+
+    @Test
+    void sendHabitNotificationWithNotExistingEmailThrowsBadRequestException() {
+        String email = "1111@email.com";
+        assertThrows(NotFoundException.class, ()->service.sendHabitNotification("userName", email));
     }
 
     @Test

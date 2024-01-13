@@ -1,8 +1,8 @@
 package greencity.config;
 
 import greencity.security.filters.AccessTokenAuthenticationFilter;
-import greencity.security.jwt.JwtTool;
 import greencity.security.handlers.CustomOAuth2AuthenticationSuccessHandler;
+import greencity.security.jwt.JwtTool;
 import greencity.security.providers.JwtAuthenticationProvider;
 import greencity.security.service.OAuthService;
 import greencity.service.UserService;
@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,11 +28,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.Collections;
 
-import static greencity.constant.AppConstant.ADMIN;
-import static greencity.constant.AppConstant.EMPLOYEE;
-import static greencity.constant.AppConstant.MODERATOR;
-import static greencity.constant.AppConstant.UBS_EMPLOYEE;
-import static greencity.constant.AppConstant.USER;
+import static greencity.constant.AppConstant.*;
 import static javax.servlet.http.HttpServletResponse.*;
 
 /**
@@ -42,6 +39,7 @@ import static javax.servlet.http.HttpServletResponse.*;
  */
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTool jwtTool;
     private final UserService userService;
@@ -137,8 +135,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 USER_LINK,
                 "/user/shopping-list-items",
                 "/user/{userId}/habit",
+                "/email/sendHabitNotification",
+                "/ownSecurity/set-password",
                 "/ownSecurity/set-password",
                 "/email/sendHabitNotification",
+                "/email/sendUserViolation",
                 "/email/changePlaceStatus")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.PUT,
