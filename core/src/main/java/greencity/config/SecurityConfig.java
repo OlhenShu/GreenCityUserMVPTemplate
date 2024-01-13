@@ -139,7 +139,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/user/shopping-list-items",
                 "/user/{userId}/habit",
                 "/ownSecurity/set-password",
-                "/email/sendUserViolation")
+                "/email/sendUserViolation",
                 "/email/changePlaceStatus")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.PUT,
