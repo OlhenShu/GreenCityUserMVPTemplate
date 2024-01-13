@@ -1,7 +1,6 @@
 package greencity.service;
 
 import greencity.ModelUtils;
-import greencity.constant.ErrorMessage;
 import static greencity.ModelUtils.getUser;
 import greencity.dto.category.CategoryDto;
 import greencity.dto.econews.AddEcoNewsDtoResponse;
@@ -159,6 +158,7 @@ class EmailServiceImplTest {
     @Test
     void sendHabitNotification() {
         when(userRepo.findByEmail("test@email.com")).thenReturn(Optional.ofNullable(ModelUtils.getUser()));
+        when(userRepo.existsUserByEmail("test@email.com")).thenReturn(true);
         service.sendHabitNotification("userName", "test@email.com");
         verify(javaMailSender).createMimeMessage();
     }
