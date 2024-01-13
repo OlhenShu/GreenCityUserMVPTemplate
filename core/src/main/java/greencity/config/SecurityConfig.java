@@ -71,7 +71,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      * @param http {@link HttpSecurity}
      */
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+   protected void configure(HttpSecurity http) throws Exception {
         http.cors()
             .and()
             .csrf()
@@ -129,16 +129,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/user/findUuidByEmail",
                 "/user/lang",
                 "/user/createUbsRecord",
-                "/ownSecurity/password-status")
+                "/ownSecurity/password-status",
+                "/user/emailNotifications")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.POST,
                 USER_LINK,
                 "/user/shopping-list-items",
                 "/user/{userId}/habit",
-                "/email/sendHabitNotification",
                 "/ownSecurity/set-password",
-                "/ownSecurity/set-password",
-                "/email/sendHabitNotification",
+                "/email/sendHabitNotification"
                 "/email/sendUserViolation",
                 "/email/changePlaceStatus")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
@@ -202,7 +201,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oauthservice))
             .failureHandler((req, resp, exc) -> resp.sendError(SC_BAD_REQUEST, exc.getMessage()));
     }
-
+  
     /**
      * Method for configure matchers that will be ignored in security.
      *
@@ -246,10 +245,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("*"));
         configuration.setAllowedMethods(
-            Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
+                Arrays.asList("GET", "POST", "OPTIONS", "DELETE", "PUT", "PATCH"));
         configuration.setAllowedHeaders(
-            Arrays.asList(
-                "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
+                Arrays.asList(
+                        "X-Requested-With", "Origin", "Content-Type", "Accept", "Authorization"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
