@@ -138,6 +138,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 "/email/sendHabitNotification",
                 "/ownSecurity/set-password",
                 "/ownSecurity/set-password",
+                "/email/sendUserViolation",
                 "/email/changePlaceStatus")
             .hasAnyRole(USER, ADMIN, UBS_EMPLOYEE, MODERATOR, EMPLOYEE)
             .antMatchers(HttpMethod.PUT,
