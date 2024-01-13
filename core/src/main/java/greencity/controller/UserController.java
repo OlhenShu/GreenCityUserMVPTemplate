@@ -10,23 +10,7 @@ import greencity.dto.PageableDto;
 import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
 import greencity.dto.ubs.UbsTableCreationDto;
-import greencity.dto.user.RoleDto;
-import greencity.dto.user.UserActivationDto;
-import greencity.dto.user.UserAndAllFriendsWithOnlineStatusDto;
-import greencity.dto.user.UserAndFriendsWithOnlineStatusDto;
-import greencity.dto.user.UserDeactivationReasonDto;
-import greencity.dto.user.UserForListDto;
-import greencity.dto.user.UserManagementDto;
-import greencity.dto.user.UserManagementUpdateDto;
-import greencity.dto.user.UserManagementVO;
-import greencity.dto.user.UserManagementViewDto;
-import greencity.dto.user.UserProfileDtoRequest;
-import greencity.dto.user.UserProfileDtoResponse;
-import greencity.dto.user.UserProfileStatisticsDto;
-import greencity.dto.user.UserRoleDto;
-import greencity.dto.user.UserStatusDto;
-import greencity.dto.user.UserUpdateDto;
-import greencity.dto.user.UserVO;
+import greencity.dto.user.*;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -36,27 +20,32 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.annotations.ApiIgnore;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -176,7 +165,6 @@ public class UserController {
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
-
     })
     @GetMapping("emailNotifications")
     public ResponseEntity<List<EmailNotification>> getEmailNotifications() {
@@ -385,6 +373,7 @@ public class UserController {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @GetMapping("isOnline/{userId}/")
     public ResponseEntity<Boolean> checkIfTheUserIsOnline(
@@ -405,7 +394,9 @@ public class UserController {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}/profileStatistics/")
     public ResponseEntity<UserProfileStatisticsDto> getUserProfileStatistics(
             @ApiParam("Id of current user. Cannot be empty.") @PathVariable @CurrentUserId Long userId) {
@@ -426,7 +417,7 @@ public class UserController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
     })
     @GetMapping("/findByEmail")
-    public ResponseEntity<UserVO> findByEmail(@RequestParam String email) {
+    public ResponseEntity<UserVO> findByEmail(@RequestParam @Email String email) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.findByEmail(email));
     }
 
@@ -495,12 +486,14 @@ public class UserController {
      * @author Orest Mamchuk
      */
     @ApiOperation(value = "update via UserManagement")
-    @ApiResponses(value = @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED))
+    @ApiResponses(value = {
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+    })
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void updateUserManagement(
-            @PathVariable @NotNull Long id,
-            @RequestBody UserManagementUpdateDto userDto) {
+    public void updateUserManagement(@PathVariable @NotNull Long id, @RequestBody UserManagementUpdateDto userDto) {
         userService.updateUser(id, userDto);
     }
 
@@ -545,7 +538,7 @@ public class UserController {
      * @return {@link Long}.
      * @author Orest Mamchuk
      */
-    @ApiOperation(value = "Get User by id")
+    @ApiOperation(value = "Get user id by email")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
@@ -571,9 +564,10 @@ public class UserController {
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @PutMapping("/updateUserLastActivityTime/{date}")
-    public ResponseEntity<Object> updateUserLastActivityTime(@ApiIgnore @CurrentUser UserVO userVO,
-                                                             @PathVariable(value = "date") @DateTimeFormat(
-                                                                     pattern = "yyyy-MM-dd.HH:mm:ss.SSSSSS") LocalDateTime userLastActivityTime) {
+    public ResponseEntity<Object> updateUserLastActivityTime(
+            @ApiIgnore @CurrentUser UserVO userVO,
+            @PathVariable(value = "date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd.HH:mm:ss.SSSSSS") LocalDateTime userLastActivityTime) {
         userService.updateUserLastActivityTime(userVO.getId(), userLastActivityTime);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
@@ -591,7 +585,8 @@ public class UserController {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 404, message = HttpStatuses.NOT_FOUND)
     })
     @PutMapping("/deactivate")
     public ResponseEntity<ResponseEntity.BodyBuilder> deactivateUser(@RequestParam Long id,
@@ -613,7 +608,8 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
-            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/lang")
     public ResponseEntity<String> getUserLang(@ApiIgnore @CurrentUser UserVO userVO) {
@@ -654,6 +650,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
     @PutMapping("/language/{languageId}")
@@ -736,7 +733,7 @@ public class UserController {
     })
     @PostMapping("/search")
     public ResponseEntity<PageableAdvancedDto<UserManagementVO>> search(@ApiIgnore Pageable pageable,
-                                                                        @RequestBody UserManagementViewDto userViewDto) {
+        @RequestBody @Valid UserManagementViewDto userViewDto) {
         PageableAdvancedDto<UserManagementVO> found = userService.search(pageable, userViewDto);
         return ResponseEntity.status(HttpStatus.OK).body(found);
     }

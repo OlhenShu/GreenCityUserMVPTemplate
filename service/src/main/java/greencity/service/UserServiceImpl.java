@@ -1,24 +1,24 @@
 package greencity.service;
 
-import greencity.constant.UpdateConstants;
-import greencity.dto.ubs.UbsTableCreationDto;
-import greencity.dto.user.*;
-import greencity.entity.Language;
-import greencity.entity.UserDeactivationReason;
-import greencity.filters.SearchCriteria;
 import greencity.client.RestClient;
 import greencity.constant.ErrorMessage;
 import greencity.constant.LogMessage;
+import greencity.constant.UpdateConstants;
 import greencity.dto.PageableAdvancedDto;
 import greencity.dto.PageableDto;
 import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
+import greencity.dto.ubs.UbsTableCreationDto;
+import greencity.dto.user.*;
+import greencity.entity.Language;
 import greencity.entity.User;
+import greencity.entity.UserDeactivationReason;
 import greencity.entity.VerifyEmail;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
 import greencity.exception.exceptions.*;
+import greencity.filters.SearchCriteria;
 import greencity.filters.UserSpecification;
 import greencity.repository.LanguageRepo;
 import greencity.repository.UserDeactivationRepo;
@@ -26,11 +26,13 @@ import greencity.repository.UserRepo;
 import greencity.repository.options.UserFilter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.AssertionFailure;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -40,7 +42,10 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -71,7 +76,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO save(UserVO userVO) {
         User user = modelMapper.map(userVO, User.class);
-        return modelMapper.map(userRepo.save(user), UserVO.class);
+        try {
+            return modelMapper.map(userRepo.save(user), UserVO.class);
+        } catch (AssertionFailure ex) {
+            throw new BadRequestException(ErrorMessage.BAD_PASSWORD);
+        }
     }
 
     /**
@@ -163,7 +172,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserVO findByEmail(String email) {
         Optional<User> optionalUser = userRepo.findByEmail(email);
-        return optionalUser.isEmpty() ? null : modelMapper.map(optionalUser.get(), UserVO.class);
+        return optionalUser.map(user -> modelMapper.map(user, UserVO.class))
+            .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email));
     }
 
     /**
@@ -181,6 +191,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public PageableAdvancedDto<UserManagementVO> search(Pageable pageable,
         UserManagementViewDto userManagementViewDto) {
+        if (userManagementViewDto.getRole() == null || !userManagementViewDto.getRole().isEmpty()) {
+            userManagementViewDto.setRole("");
+        }
+
         Page<User> found = userRepo.findAll(buildSpecification(userManagementViewDto), pageable);
         return buildPageableAdvanceDtoFromPage(found);
     }
@@ -371,10 +385,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserUpdateDto getUserUpdateDtoByEmail(String email) {
-        return modelMapper.map(
-            userRepo.findByEmail(email)
-                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email)),
-            UserUpdateDto.class);
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new WrongEmailException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email));
+
+        if (!user.getRole().equals(Role.ROLE_ADMIN)) {
+            throw new AccessDeniedException("Insufficient privileges to access this resource");
+        }
+
+        return modelMapper.map(user, UserUpdateDto.class);
     }
 
     /**
@@ -505,15 +523,6 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
     }
 
-    private PageableDto<UserProfilePictureDto> getPageableDto(
-        List<UserProfilePictureDto> userProfilePictureDtoList, Page<User> pageUsers) {
-        return new PageableDto<>(
-            userProfilePictureDtoList,
-            pageUsers.getTotalElements(),
-            pageUsers.getPageable().getPageNumber(),
-            pageUsers.getTotalPages());
-    }
-
     /**
      * Save user profile information {@link UserVO}.
      *
@@ -590,15 +599,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserProfileStatisticsDto getUserProfileStatistics(Long userId) {
+        if (userRepo.findById(userId).isEmpty()) {
+            throw new NotFoundException(String.format("User with id: %d not found", userId));
+        }
         Long amountOfPublishedNewsByUserId = restClient.findAmountOfPublishedNews(userId);
         Long amountOfAcquiredHabitsByUserId = restClient.findAmountOfAcquiredHabits(userId);
         Long amountOfHabitsInProgressByUserId = restClient.findAmountOfHabitsInProgress(userId);
-
         return UserProfileStatisticsDto.builder()
-            .amountPublishedNews(amountOfPublishedNewsByUserId)
-            .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
-            .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
-            .build();
+                .amountPublishedNews(amountOfPublishedNewsByUserId)
+                .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
+                .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
+                .build();
     }
 
     @Override
@@ -669,9 +680,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserLanguage(Long userId, Long languageId) {
         Language language = languageRepo.findById(languageId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.LANGUAGE_NOT_FOUND_BY_ID + languageId));
+            .orElseThrow(() -> new BadRequestException(ErrorMessage.LANGUAGE_NOT_FOUND_BY_ID + languageId));
         User user = userRepo.findById(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_ID + userId));
+            .orElseThrow(() -> new BadRequestException(ErrorMessage.USER_NOT_FOUND_BY_ID + userId));
         user.setLanguage(language);
         userRepo.save(user);
     }
