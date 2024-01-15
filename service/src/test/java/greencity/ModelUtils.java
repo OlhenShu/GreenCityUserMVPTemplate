@@ -73,6 +73,7 @@ public class ModelUtils {
             .amountHabitsInProgress(TestConst.SIMPLE_LONG_NUMBER)
             .amountHabitsAcquired(TestConst.SIMPLE_LONG_NUMBER)
             .amountPublishedNews(TestConst.SIMPLE_LONG_NUMBER)
+            .amountEvents(TestConst.SIMPLE_LONG_NUMBER)
             .build();
     }
 
