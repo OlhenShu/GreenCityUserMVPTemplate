@@ -486,8 +486,9 @@ class UserServiceImplTest {
     }
 
     @Test
-    void saveUserProfileTest() {
+    void aveUserProfileWithOutSocialNetworksTest() {
         var request = ModelUtils.getUserProfileDtoRequest();
+        request.getSocialNetworks().remove(0);
         var user = ModelUtils.getUserWithSocialNetworks();
         when(userRepo.findByEmail("test@gmail.com")).thenReturn(Optional.of(user));
         assertEquals(UpdateConstants.SUCCESS_EN, userService.saveUserProfile(request, "test@gmail.com"));

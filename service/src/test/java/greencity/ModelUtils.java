@@ -202,15 +202,18 @@ public class ModelUtils {
     }
 
     public static UserProfileDtoRequest getUserProfileDtoRequest() {
-        return UserProfileDtoRequest.builder()
+        UserProfileDtoRequest request = UserProfileDtoRequest.builder()
             .name("Name")
             .city("City")
-            .socialNetworks(List.of("https://www.instagram.com"))
             .userCredo("userCredo")
             .showLocation(true)
             .showEcoPlace(true)
             .showShoppingList(true)
             .build();
+        List<String> links = new ArrayList<>();
+        links.add("https://www.instagram.com");
+        request.setSocialNetworks(links);
+        return request;
     }
 
     public static Language getLanguage() {
