@@ -23,6 +23,7 @@ public final class ValidationConstants {
             + "[ЄІЇҐЁєіїґёА-Яа-яA-Za-z0-9\\s-'’.\\\"]"
             + "{1,30}"
             + "(?<![ЭэЁёъЪЫы])$";
+    public static final int MAX_AMOUNT_OF_SOCIAL_NETWORK_LINKS = 5;
 
     private ValidationConstants() {
     }

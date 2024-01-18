@@ -18,11 +18,7 @@ import greencity.dto.user.UserVO;
 import greencity.dto.verifyemail.VerifyEmailVO;
 import greencity.dto.violation.UserViolationMailDto;
 
-import greencity.entity.Language;
-import greencity.entity.OwnSecurity;
-import greencity.entity.RestorePasswordEmail;
-import greencity.entity.User;
-import greencity.entity.VerifyEmail;
+import greencity.entity.*;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -31,6 +27,7 @@ import greencity.security.dto.ownsecurity.OwnSignUpDto;
 
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -100,6 +97,23 @@ public class ModelUtils {
             .verifyEmail(new VerifyEmail())
             .dateOfRegistration(LocalDateTime.now())
             .build();
+    }
+
+    public static User getUserWithSocialNetworks() {
+        User user = User.builder()
+            .id(1L)
+            .email(TestConst.EMAIL)
+            .name(TestConst.NAME)
+            .role(Role.ROLE_USER)
+            .language(ModelUtils.getLanguage())
+            .lastActivityTime(LocalDateTime.now())
+            .verifyEmail(new VerifyEmail())
+            .dateOfRegistration(LocalDateTime.now())
+            .build();
+        List<SocialNetwork> socialNetworks = new ArrayList<>();
+        socialNetworks.add(new SocialNetwork(1L,"https://www.instagram.com",user));
+        user.setSocialNetworks(socialNetworks);
+        return user;
     }
 
     public static User getUserWithoutSocialNetworks() {
@@ -191,6 +205,7 @@ public class ModelUtils {
         return UserProfileDtoRequest.builder()
             .name("Name")
             .city("City")
+            .socialNetworks(List.of("https://www.instagram.com"))
             .userCredo("userCredo")
             .showLocation(true)
             .showEcoPlace(true)
