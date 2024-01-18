@@ -197,8 +197,7 @@ public class EmailServiceImpl implements EmailService {
         String baseLink = clientLink + "/#" + (isUbs ? "/ubs" : "");
         model.put(EmailConstants.CLIENT_LINK, baseLink);
         model.put(EmailConstants.USER_NAME, userName);
-        model.put(EmailConstants.RESTORE_PASS, baseLink + "/auth/restore?" + "token=" + token
-            + PARAM_USER_ID + userId);
+        model.put(EmailConstants.RESTORE_PASS, baseLink + "/auth/restore?" + "token=" + token + PARAM_USER_ID + userId);
         changeLocale(language);
         model.put(EmailConstants.IS_UBS, isUbs);
         String template = createEmailTemplate(model, EmailConstants.RESTORE_EMAIL_PAGE);
@@ -280,7 +279,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendUserViolationEmail(UserViolationMailDto dto) {
-        if(!dto.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")){
+        if (!dto.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
             throw new NotFoundException("Wrong email format");
         }
         Map<String, Object> model = new HashMap<>();

@@ -622,8 +622,7 @@ public class UserController {
      *
      * @param id        {@link Long} - user's id.
      * @param adminLang {@link String} - current administrator language.
-     * @return {@link List} of {@link String} - reasons for deactivation of the
-     * current user.
+     * @return {@link List} of {@link String} - reasons for deactivation of the current user.
      * @author Vlad Pikhotskyi
      */
     @ApiOperation(value = "Get list reasons of deactivating the user")
