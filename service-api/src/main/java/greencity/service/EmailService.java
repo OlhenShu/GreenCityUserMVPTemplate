@@ -132,6 +132,15 @@ public interface EmailService {
     void sendNotificationByEmail(NotificationDto notification, String email);
 
     /**
+     * Method for send notification to news subscriber.
+     *
+     * @param notification {@link NotificationDto} includes all information about notification.
+     * @param email        letter is sent to this email.
+     * @author Denys Liubchenko.
+     */
+    void sendNotificationByEmailToNewsSubscriber(NotificationDto notification, String email);
+
+    /**
      * Method for send information about success restoring password.
      *
      * @param email    letter is sent to this email.

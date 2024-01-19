@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -138,6 +139,27 @@ public class EmailController {
     public ResponseEntity<Object> sendUserNotification(@RequestBody NotificationDto notification,
                                                        @RequestParam("email") String email) {
         emailService.sendNotificationByEmail(notification, email);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    /**
+     * Sends notification to news subscriber on email.
+     *
+     * @param notification {@link NotificationDto} - object with all necessary data
+     *                     for sending notification via email.
+     * @param email        {@link String} - subscriber's email.
+     * @author Denys Liubchenko
+     */
+    @ApiOperation(value = "Send notification to news subscriber via email")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = HttpStatuses.OK),
+        @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+        @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED)
+    })
+    @PostMapping("/notification/newsSubscriber")
+    public ResponseEntity<ResponseEntity.BodyBuilder> sendUserNotificationToNewsSubscriber(
+        @RequestBody NotificationDto notification, @RequestParam("email") @Email String email) {
+        emailService.sendNotificationByEmailToNewsSubscriber(notification, email);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -14,6 +14,7 @@ import greencity.dto.user.UserActivationDto;
 import greencity.dto.user.UserDeactivationReasonDto;
 import greencity.dto.violation.UserViolationMailDto;
 import greencity.exception.exceptions.NotFoundException;
+import greencity.repository.NewsSubscriberRepo;
 import greencity.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ public class EmailServiceImpl implements EmailService {
     private final String ecoNewsLink;
     private final String serverLink;
     private final String senderEmailAddress;
+    private final NewsSubscriberRepo newsSubscriberRepo;
 
     /**
      * Constructor.
@@ -60,7 +62,8 @@ public class EmailServiceImpl implements EmailService {
         @Value("${client.address}") String clientLink,
         @Value("${econews.address}") String ecoNewsLink,
         @Value("${address}") String serverLink,
-        @Value("${sender.email.address}") String senderEmailAddress) {
+        @Value("${sender.email.address}") String senderEmailAddress,
+        NewsSubscriberRepo newsSubscriberRepo) {
         this.javaMailSender = javaMailSender;
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
@@ -69,6 +72,7 @@ public class EmailServiceImpl implements EmailService {
         this.ecoNewsLink = ecoNewsLink;
         this.serverLink = serverLink;
         this.senderEmailAddress = senderEmailAddress;
+        this.newsSubscriberRepo = newsSubscriberRepo;
     }
 
     @Override
@@ -296,6 +300,18 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendNotificationByEmail(NotificationDto notification, String email) {
         if (userRepo.findByEmail(email).isPresent()) {
+            sendEmail(email, notification.getTitle(), notification.getBody());
+        } else {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendNotificationByEmailToNewsSubscriber(NotificationDto notification, String email) {
+        if (newsSubscriberRepo.existsByEmail(email)) {
             sendEmail(email, notification.getTitle(), notification.getBody());
         } else {
             throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);
