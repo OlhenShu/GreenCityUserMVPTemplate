@@ -22,7 +22,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -164,5 +167,23 @@ class EmailControllerTest {
 
         NotificationDto notification = new ObjectMapper().readValue(content, NotificationDto.class);
         verify(emailService).sendNotificationByEmail(notification, email);
+    }
+
+    @Test
+    void sendUserNotificationToNewsSubscriberTest() throws Exception {
+        String content = "{" +
+            "\"title\":\"title\"," +
+            "\"body\":\"body\"" +
+            "}";
+        String email = "email@mail.com";
+
+        mockMvc.perform(post(LINK + "/notification/newsSubscriber")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(content)
+                .param("email", email))
+            .andExpect(status().isOk());
+
+        NotificationDto notification = new ObjectMapper().readValue(content, NotificationDto.class);
+        verify(emailService).sendNotificationByEmailToNewsSubscriber(notification, email);
     }
 }
