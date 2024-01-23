@@ -15,6 +15,7 @@ import greencity.dto.user.UserDeactivationReasonDto;
 import greencity.dto.violation.UserViolationMailDto;
 import greencity.entity.User;
 import greencity.exception.exceptions.NotFoundException;
+import greencity.repository.NewsSubscriberRepo;
 import greencity.repository.UserRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,8 @@ class EmailServiceImplTest {
     @Mock
     private ITemplateEngine templateEngine;
     @Mock
+    private NewsSubscriberRepo newsSubscriberRepo;
+    @Mock
     private UserRepo userRepo;
 
     @BeforeEach
@@ -50,7 +53,7 @@ class EmailServiceImplTest {
         initMocks(this);
         service = new EmailServiceImpl(javaMailSender, templateEngine, userRepo, Executors.newCachedThreadPool(),
             "http://localhost:4200", "http://localhost:4200", "http://localhost:8080",
-            "test@email.com");
+            "test@email.com", newsSubscriberRepo);
         placeAuthorDto = PlaceAuthorDto.builder()
             .id(1L)
             .email("testEmail@gmail.com")
@@ -225,5 +228,23 @@ class EmailServiceImplTest {
         when(userRepo.findByEmail(anyString())).thenReturn(Optional.empty());
         NotificationDto dto = NotificationDto.builder().title("title").body("body").build();
         assertThrows(NotFoundException.class, () -> service.sendNotificationByEmail(dto, "test@gmail.com"));
+    }
+
+    @Test
+    void sendNotificationByEmailToNewsSubscriberTest() {
+        NotificationDto dto = NotificationDto.builder().title("title").body("body").build();
+
+        when(newsSubscriberRepo.existsByEmail(anyString())).thenReturn(true);
+
+        service.sendNotificationByEmailToNewsSubscriber(dto, "test@gmail.com");
+        verify(javaMailSender).createMimeMessage();
+    }
+
+    @Test
+    void sendNotificationByEmailToNewsSubscriberWhenUserIsNotNewsSubscriberThrowsNotFoundExceptionTest() {
+        when(newsSubscriberRepo.existsByEmail(anyString())).thenReturn(false);
+        NotificationDto dto = NotificationDto.builder().title("title").body("body").build();
+
+        assertThrows(NotFoundException.class, () -> service.sendNotificationByEmailToNewsSubscriber(dto, "test@gmail.com"));
     }
 }

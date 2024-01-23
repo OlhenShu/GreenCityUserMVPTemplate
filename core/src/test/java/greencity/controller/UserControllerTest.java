@@ -333,6 +333,7 @@ class UserControllerTest {
             + "\t\"userCredo\": \"credo\",\n"
             + "\t\"showLocation\": true,\n"
             + "\t\"showEcoPlace\": true,\n"
+            + "\t\"socialNetworks\": [],\n"
             + "\t\"showShoppingList\": false\n"
             + "}";
         String accessToken = "accessToken";

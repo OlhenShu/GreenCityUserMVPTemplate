@@ -14,6 +14,7 @@ import greencity.dto.user.UserActivationDto;
 import greencity.dto.user.UserDeactivationReasonDto;
 import greencity.dto.violation.UserViolationMailDto;
 import greencity.exception.exceptions.NotFoundException;
+import greencity.repository.NewsSubscriberRepo;
 import greencity.repository.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,7 @@ public class EmailServiceImpl implements EmailService {
     private final String ecoNewsLink;
     private final String serverLink;
     private final String senderEmailAddress;
+    private final NewsSubscriberRepo newsSubscriberRepo;
 
     /**
      * Constructor.
@@ -60,7 +62,8 @@ public class EmailServiceImpl implements EmailService {
         @Value("${client.address}") String clientLink,
         @Value("${econews.address}") String ecoNewsLink,
         @Value("${address}") String serverLink,
-        @Value("${sender.email.address}") String senderEmailAddress) {
+        @Value("${sender.email.address}") String senderEmailAddress,
+        NewsSubscriberRepo newsSubscriberRepo) {
         this.javaMailSender = javaMailSender;
         this.templateEngine = templateEngine;
         this.userRepo = userRepo;
@@ -69,6 +72,7 @@ public class EmailServiceImpl implements EmailService {
         this.ecoNewsLink = ecoNewsLink;
         this.serverLink = serverLink;
         this.senderEmailAddress = senderEmailAddress;
+        this.newsSubscriberRepo = newsSubscriberRepo;
     }
 
     @Override
@@ -197,8 +201,7 @@ public class EmailServiceImpl implements EmailService {
         String baseLink = clientLink + "/#" + (isUbs ? "/ubs" : "");
         model.put(EmailConstants.CLIENT_LINK, baseLink);
         model.put(EmailConstants.USER_NAME, userName);
-        model.put(EmailConstants.RESTORE_PASS, baseLink + "/auth/restore?" + "token=" + token
-            + PARAM_USER_ID + userId);
+        model.put(EmailConstants.RESTORE_PASS, baseLink + "/auth/restore?" + "token=" + token + PARAM_USER_ID + userId);
         changeLocale(language);
         model.put(EmailConstants.IS_UBS, isUbs);
         String template = createEmailTemplate(model, EmailConstants.RESTORE_EMAIL_PAGE);
@@ -280,6 +283,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendUserViolationEmail(UserViolationMailDto dto) {
+        if (!dto.getEmail().matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
+            throw new NotFoundException("Wrong email format");
+        }
         Map<String, Object> model = new HashMap<>();
         model.put(EmailConstants.CLIENT_LINK, clientLink);
         model.put(EmailConstants.USER_NAME, dto.getName());
@@ -293,6 +299,18 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendNotificationByEmail(NotificationDto notification, String email) {
         if (userRepo.findByEmail(email).isPresent()) {
+            sendEmail(email, notification.getTitle(), notification.getBody());
+        } else {
+            throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void sendNotificationByEmailToNewsSubscriber(NotificationDto notification, String email) {
+        if (newsSubscriberRepo.existsByEmail(email)) {
             sendEmail(email, notification.getTitle(), notification.getBody());
         } else {
             throw new NotFoundException(ErrorMessage.USER_NOT_FOUND_BY_EMAIL + email);

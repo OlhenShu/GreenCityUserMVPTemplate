@@ -36,7 +36,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           git fetch --unshallow
-          mvn formatter:format; mvn clean install sonar:sonar -Dsonar.projectKey=OlhenShu_GreenCityUserMVPTemplate -Dsonar.organization=olhenshu -Dsonar.host.url=https://sonarcloud.io -Dsonar.binaries=target/classes -Dsonar.dynamicAnalysis=reuseReports
+          mvn formatter:format; mvn clean install sonar:sonar -Dsonar.projectKey=OlhenShu_GreenCityUserMVPTemplate -Dsonar.organization=olhenshu -Dsonar.host.url=https://sonarcloud.io -Dsonar.binaries=target/classes -Dsonar.dynamicAnalysis=reuseReports -Dsonar.scanner.force-deprecated-java-version
 
       - name: Test Reporter
         uses: dorny/test-reporter@v1.5.0

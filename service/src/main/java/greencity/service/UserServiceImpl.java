@@ -10,10 +10,7 @@ import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
 import greencity.dto.ubs.UbsTableCreationDto;
 import greencity.dto.user.*;
-import greencity.entity.Language;
-import greencity.entity.User;
-import greencity.entity.UserDeactivationReason;
-import greencity.entity.VerifyEmail;
+import greencity.entity.*;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -529,6 +526,7 @@ public class UserServiceImpl implements UserService {
      * @author Marian Datsko
      */
     @Override
+    @Transactional
     public String saveUserProfile(UserProfileDtoRequest userProfileDtoRequest, String email) {
         User user = userRepo
             .findByEmail(email)
@@ -539,7 +537,18 @@ public class UserServiceImpl implements UserService {
         user.setShowLocation(userProfileDtoRequest.getShowLocation());
         user.setShowEcoPlace(userProfileDtoRequest.getShowEcoPlace());
         user.setShowShoppingList(userProfileDtoRequest.getShowShoppingList());
-        userRepo.save(user);
+
+        if (userProfileDtoRequest.getSocialNetworks() != null && !userProfileDtoRequest.getSocialNetworks().isEmpty()) {
+            user.getSocialNetworks().clear();
+            user.getSocialNetworks().addAll(userProfileDtoRequest.getSocialNetworks()
+                .stream()
+                .map(url -> SocialNetwork.builder()
+                    .url(url)
+                    .user(user)
+                    .build())
+                .collect(Collectors.toList()));
+        }
+
         return UpdateConstants.getResultByLanguageCode(user.getLanguage().getCode());
     }
 
@@ -605,10 +614,12 @@ public class UserServiceImpl implements UserService {
         Long amountOfPublishedNewsByUserId = restClient.findAmountOfPublishedNews(userId);
         Long amountOfAcquiredHabitsByUserId = restClient.findAmountOfAcquiredHabits(userId);
         Long amountOfHabitsInProgressByUserId = restClient.findAmountOfHabitsInProgress(userId);
+        Long amountOfEventsByUserId = restClient.findAmountOfEvents(userId);
         return UserProfileStatisticsDto.builder()
                 .amountPublishedNews(amountOfPublishedNewsByUserId)
                 .amountHabitsAcquired(amountOfAcquiredHabitsByUserId)
                 .amountHabitsInProgress(amountOfHabitsInProgressByUserId)
+                .amountEvents(amountOfEventsByUserId)
                 .build();
     }
 

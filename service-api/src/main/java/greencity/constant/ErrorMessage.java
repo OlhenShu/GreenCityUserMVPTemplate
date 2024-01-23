@@ -31,6 +31,8 @@ public final class ErrorMessage {
     public static final String USER_CREATED = "User is not activated";
     public static final String USER_EMAIL_IS_NOT_VERIFIED = "The user's email address has not been verified.";
     public static final String INCORRECT_PASSWORD = "Incorrect password";
+    public static final String USER_CANNOT_ADD_MORE_THAN_5_SOCIAL_NETWORK_LINKS =
+        "User cannot add more than 5 social network links";
 
     private ErrorMessage() {
     }

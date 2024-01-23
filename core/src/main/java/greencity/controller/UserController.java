@@ -20,6 +20,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.security.Principal;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -398,7 +404,6 @@ public class UserController {
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED),
             @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN)
     })
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}/profileStatistics/")
     public ResponseEntity<UserProfileStatisticsDto> getUserProfileStatistics(
             @ApiParam("Id of current user. Cannot be empty.") @PathVariable @CurrentUserId Long userId) {
@@ -610,6 +615,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = HttpStatuses.OK),
             @ApiResponse(code = 400, message = HttpStatuses.BAD_REQUEST),
+            @ApiResponse(code = 403, message = HttpStatuses.FORBIDDEN),
             @ApiResponse(code = 401, message = HttpStatuses.UNAUTHORIZED)
     })
     @GetMapping("/lang")
@@ -623,8 +629,7 @@ public class UserController {
      *
      * @param id        {@link Long} - user's id.
      * @param adminLang {@link String} - current administrator language.
-     * @return {@link List} of {@link String} - reasons for deactivation of the
-     *         current user.
+     * @return {@link List} of {@link String} - reasons for deactivation of the current user.
      * @author Vlad Pikhotskyi
      */
     @ApiOperation(value = "Get list reasons of deactivating the user")
