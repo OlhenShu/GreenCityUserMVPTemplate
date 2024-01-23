@@ -175,7 +175,6 @@ public class UserController {
     })
     @GetMapping("emailNotifications")
     public ResponseEntity<?> getEmailNotifications() {
-
         List<EmailNotification> notifications = userService.getEmailNotificationsStatuses();
 
         if ((notifications.size() < 5) && (notifications.size() > 0)) {
