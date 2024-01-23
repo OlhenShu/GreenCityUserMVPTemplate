@@ -115,6 +115,20 @@ public class RestClient {
     }
 
     /**
+     * The method for getting count of events.
+     *
+     * @param userId of {@link UserVO}
+     * @return Long
+     * @author Nikita Malov
+     */
+    public Long findAmountOfEvents(Long userId) {
+        HttpEntity<String> entity = new HttpEntity<>(setHeader());
+        return restTemplate.exchange(greenCityServerAddress
+                + RestTemplateLinks.EVENTS_COUNT + RestTemplateLinks.USER_ID + userId, HttpMethod.GET,
+            entity, Long.class).getBody();
+    }
+
+    /**
      * Method for finding all language code.
      *
      * @return list of {@link String}

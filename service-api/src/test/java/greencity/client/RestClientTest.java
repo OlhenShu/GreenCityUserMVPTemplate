@@ -103,6 +103,21 @@ class RestClientTest {
     }
 
     @Test
+    void findAmountOfEvents() {
+        String accessToken = "accessToken";
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(AUTHORIZATION, accessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        Long eventsAmount = 5L;
+        Long userId = 1L;
+        when(httpServletRequest.getHeader(AUTHORIZATION)).thenReturn(accessToken);
+        when(restTemplate.exchange(greenCityServerAddress
+            + RestTemplateLinks.EVENTS_COUNT + RestTemplateLinks.USER_ID + userId, HttpMethod.GET, entity, Long.class))
+            .thenReturn(ResponseEntity.ok(eventsAmount));
+        assertEquals(eventsAmount, restClient.findAmountOfEvents(userId));
+    }
+
+    @Test
     void findAmountOfAcquiredHabits() {
         String accessToken = "accessToken";
         HttpHeaders headers = new HttpHeaders();

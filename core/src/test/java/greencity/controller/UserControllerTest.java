@@ -333,6 +333,7 @@ class UserControllerTest {
             + "\t\"userCredo\": \"credo\",\n"
             + "\t\"showLocation\": true,\n"
             + "\t\"showEcoPlace\": true,\n"
+            + "\t\"socialNetworks\": [],\n"
             + "\t\"showShoppingList\": false\n"
             + "}";
         String accessToken = "accessToken";
@@ -358,7 +359,7 @@ class UserControllerTest {
         Pageable pageable = PageRequest.of(0, 20);
         UserManagementViewDto userViewDto =
             UserManagementViewDto.builder()
-                .id("1L")
+                .id("1")
                 .name("vivo")
                 .email("test@ukr.net")
                 .userCredo("Hello")
