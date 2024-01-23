@@ -6,6 +6,7 @@ import greencity.dto.filter.FilterUserDto;
 import greencity.dto.shoppinglist.CustomShoppingListItemResponseDto;
 import greencity.dto.ubs.UbsTableCreationDto;
 import greencity.dto.user.*;
+import greencity.entity.User;
 import greencity.enums.EmailNotification;
 import greencity.enums.Role;
 import greencity.enums.UserStatus;
@@ -164,8 +165,7 @@ public interface UserService {
      *
      * @return available {@link EmailNotification} statuses.
      */
-    List<EmailNotification> getEmailNotificationsStatuses();
-
+    EmailNotification getEmailNotificationsStatuses(String email);
     /**
      * Update last visit of user.
      *
