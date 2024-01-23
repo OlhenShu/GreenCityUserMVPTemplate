@@ -446,15 +446,17 @@ class UserServiceImplTest {
     }
 
     @Test
-    void geTUserProfileStatistics() {
+    void getUserProfileStatistics() {
         when(restClient.findAmountOfPublishedNews(TestConst.SIMPLE_LONG_NUMBER))
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
         when(restClient.findAmountOfAcquiredHabits(TestConst.SIMPLE_LONG_NUMBER))
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
         when(restClient.findAmountOfHabitsInProgress(TestConst.SIMPLE_LONG_NUMBER))
             .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
+        when(restClient.findAmountOfEvents(TestConst.SIMPLE_LONG_NUMBER))
+            .thenReturn(TestConst.SIMPLE_LONG_NUMBER);
         when(userRepo.findById(anyLong())).thenReturn(Optional.of(TEST_ADMIN));
-        UserProfileStatisticsDto userProfileStatistics = userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER);
+
         assertEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,
             userService.getUserProfileStatistics(TestConst.SIMPLE_LONG_NUMBER));
         assertNotEquals(ModelUtils.USER_PROFILE_STATISTICS_DTO,
