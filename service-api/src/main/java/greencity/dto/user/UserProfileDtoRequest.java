@@ -1,5 +1,7 @@
 package greencity.dto.user;
 
+import greencity.annotations.ValidSocialNetworkLink;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Getter;
@@ -29,4 +31,6 @@ public class UserProfileDtoRequest {
     private Boolean showLocation;
     private Boolean showEcoPlace;
     private Boolean showShoppingList;
+    @ValidSocialNetworkLink
+    private List<String> socialNetworks;
 }

@@ -199,7 +199,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/css/**",
                         "/img/**")
                 .permitAll()
-                .anyRequest().hasAnyRole(ADMIN)            .and()
+                .anyRequest().hasAnyRole(ADMIN)
+                .and()
                 .oauth2Login()
                 .successHandler(new CustomOAuth2AuthenticationSuccessHandler(oauthservice))
                 .failureHandler((req, resp, exc) -> resp.sendError(SC_BAD_REQUEST, exc.getMessage()));

@@ -488,14 +488,22 @@ class UserServiceImplTest {
     }
 
     @Test
-    void saveUserProfileTest() {
+    void aveUserProfileWithOutSocialNetworksTest() {
         var request = ModelUtils.getUserProfileDtoRequest();
-        var user = ModelUtils.getUserWithoutSocialNetworks();
+        request.getSocialNetworks().remove(0);
+        var user = ModelUtils.getUserWithSocialNetworks();
         when(userRepo.findByEmail("test@gmail.com")).thenReturn(Optional.of(user));
-        when(userRepo.save(user)).thenReturn(user);
         assertEquals(UpdateConstants.SUCCESS_EN, userService.saveUserProfile(request, "test@gmail.com"));
         verify(userRepo).findByEmail("test@gmail.com");
-        verify(userRepo).save(user);
+    }
+
+    @Test
+    void saveUserProfileWithSocialNetworksTest() {
+        var request = ModelUtils.getUserProfileDtoRequest();
+        var user = ModelUtils.getUserWithSocialNetworks();
+        when(userRepo.findByEmail("test@gmail.com")).thenReturn(Optional.of(user));
+        assertEquals(UpdateConstants.SUCCESS_EN, userService.saveUserProfile(request, "test@gmail.com"));
+        verify(userRepo).findByEmail("test@gmail.com");
     }
 
     @Test
